@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-13 Tue 20:31 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>linux command tips</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="http://shuchaoma.github.io/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">linux command tips</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge7ad246">1. nl</a></li>
+<li><a href="#orge652f06">2. xmllint</a></li>
+</ul>
+</div>
+</div>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">date</th>
+<th scope="col" class="org-left">modification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">20180310</td>
+<td class="org-left">add nl, xmllint</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+最近发现了一些挺有意思的小命令；虽然比较“旁门左道”，用到时还是挺不错的。
+</p>
+<div id="outline-container-orge7ad246" class="outline-2">
+<h2 id="orge7ad246"><span class="section-number-2">1</span> nl</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+nl is short of "line number filter",专用用来给文件“按照指定规则标记行号”的小工具。
+比如空行跳过、行号宽度、只对“匹配正则表达式”的行进行标记。
+</p>
+
+<p>
+详细参考：
+</p>
+<ul class="org-ul">
+<li><a href="http://www.cnblogs.com/peida/archive/2012/11/01/2749048.html">http://www.cnblogs.com/peida/archive/2012/11/01/2749048.html</a></li>
+<li>man nl（macos 自带了这个命令。）</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge652f06" class="outline-2">
+<h2 id="orge652f06"><span class="section-number-2">2</span> xmllint</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+xmllint是一个针对 xml 进行格式解析、处理的工具。
+详细参考：
+</p>
+<ul class="org-ul">
+<li><a href="http://www.361way.com/xmllint-html-xml/3048.html">http://www.361way.com/xmllint-html-xml/3048.html</a></li>
+<li>man xmllint(macos 自带了这个命令)</li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+#+TITLE: Sitemap
+
+- [[file:wiki.org][Kownledge wiki]]
+- [[file:blog.org][blog]]
+- [[file:index.org][Shuchaoma's(马树超) Homepage]]
+- [[file:links.org][links]]
+- blog
+  - [[file:blog/20180319-FeixunRouterK2InjectMyHTTPTraffic.org][天了噜，这家家庭路由器厂商竟然这么干]]
+  - [[file:blog/20180204-concept_of_growth.org][观念的成长]]
+  - [[file:blog/20170908-GTD-share.org][GTD分享]]
+  - [[file:blog/20171107-aBugWorthofAWorkday.org][价值一个工作日的BUG]]
+  - [[file:blog/20171010-orgmode-practice.org][orgmode-practice]]
+- wiki
+  - [[file:wiki/20180320-qemu-kvm-tutorial.org][qemu-kvm tutorial]]
+  - [[file:wiki/20180310-linux-command-tips.org][linux command tips]]
+  - [[file:wiki/20171119-python-class.org][python class综述]]
+  - [[file:wiki/20171112-getopt-of-python-c-bash.org][命令行参数处理(c/bash/python)]]
+  - [[file:wiki/20171107-python-standard-library.org][python标准库]]
+  - [[file:wiki/20171104-python-errno-module.org][Python errno模块]]
+  - [[file:wiki/20171101-python-functional-programming.org][Python函数式编程]]
+  - [[file:wiki/20171027-rsyslogd.org][syslog、syslog-ng、rsyslog]]
+  - [[file:wiki/20171027-Python-Glossary.org][Python术语精解]]
+  - [[file:wiki/20170926-traceroute-variant.org][traceroute的几个变体]]
+  - [[file:wiki/20170919-traceroute.org][traceroute]]
+  - [[file:wiki/20170918-ping.org][ping]]

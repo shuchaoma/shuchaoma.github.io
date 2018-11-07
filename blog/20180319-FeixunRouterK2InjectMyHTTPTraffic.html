@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:38 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>天了噜，这家家庭路由器厂商竟然这么干</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">天了噜，这家家庭路由器厂商竟然这么干</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org1d775e7">1. 起因</a></li>
+<li><a href="#orgb9e100b">2. 分析</a></li>
+<li><a href="#orgd17f46f">3. 结尾</a></li>
+<li><a href="#orgd926b33">4. 图一：广告 frame 对应的广告请求（红框与广告元素对应）</a></li>
+<li><a href="#org927091f">5. 图二：插入的 js 代码核心逻辑</a></li>
+</ul>
+</div>
+</div>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">date</th>
+<th scope="col" class="org-left">modification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">20180319</td>
+<td class="org-left">first commit</td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-org1d775e7" class="outline-2">
+<h2 id="org1d775e7"><span class="section-number-2">1</span> 起因</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+最近网上浏览网页时总是概率性“广告”弹窗，一开始以为是网站的问题吧；后来频繁出现，
+觉得事情有点不对。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb9e100b" class="outline-2">
+<h2 id="orgb9e100b"><span class="section-number-2">2</span> 分析</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+联想到前两天给 chrome 浏览器安装了几个额外的插件、升级了proxy 插件，担心因为无良
+插件作者搞的鬼，先顺次删除了最近安装的插件。结果依然存在广告弹窗。感觉这个事情
+不简单。
+</p>
+
+<p>
+经过深入分析，发现竟然是家用路由器劫持了 HTTP 流量所致（斐讯 K2路由器）。每当我
+访问 HTTP 流量时，斐讯路由器在返回的页面中插入一段 js 代码，这段 js 代码监听浏览
+器 onload 事件，根据用户的访问形式以及后台设计的规则推送广告。
+</p>
+
+<p>
+证据大致分析：
+</p>
+<ol class="org-ol">
+<li>通过 github 下载 pages 源文件，与直接访问的http文件，多了一行 script 标签。</li>
+<li>script 标签内为 js 文件</li>
+<li>js 文件中的诸多逻辑可以表示跟路由器有关：
+<ul class="org-ul">
+<li>比如js 文件中有我路由器的 device address;</li>
+<li>比如 js 文件单独对 baidu、phicomm.com(斐讯域名)进行广告屏蔽;</li>
+<li>比如 js 文件中 url 连接中IP 地址正是路由器厂商公司所在地，存在明显的 route 标记。</li>
+</ul></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-orgd17f46f" class="outline-2">
+<h2 id="orgd17f46f"><span class="section-number-2">3</span> 结尾</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+竟然“劫持”这件事距离我这么近~；一直以为只有 Baidu、淘宝这类大站大家更加关注，没
+想到&#x2026;.站长们，尽快拥抱 HTTPS 吧
+</p>
+
+<p>
+后来此事向厂商反馈，对方也没有积极跟进，只是说“我们加路由器不可能侵犯用户隐私”。
+再后来，发现这个问题已经有网友在<a href="http://www.phiwifi.cn/thread/6360">斐讯社区（它家门口）</a>反映过，依然没有官方人员出来
+应对此事。
+</p>
+
+<p>
+看来，我们国人的隐私真的是可以用来“探索”的，而且不用付法律责任。
+</p>
+</div>
+</div>
+
+
+
+<div id="outline-container-orgd926b33" class="outline-2">
+<h2 id="orgd926b33"><span class="section-number-2">4</span> 图一：广告 frame 对应的广告请求（红框与广告元素对应）</h2>
+<div class="outline-text-2" id="text-4">
+
+<div class="figure">
+<p><img src="./attach/feixun-1.png" alt="feixun-1.png" />
+</p>
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-org927091f" class="outline-2">
+<h2 id="org927091f"><span class="section-number-2">5</span> 图二：插入的 js 代码核心逻辑</h2>
+<div class="outline-text-2" id="text-5">
+
+<div class="figure">
+<p><img src="./attach/feixun-3.png" alt="feixun-3.png" />
+</p>
+</div>
+
+
+<p>
+附件：<a href="./attach/feixun.js">斐讯路由器的劫持JS代码</a>
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>

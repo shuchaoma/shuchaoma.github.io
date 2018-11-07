@@ -1,0 +1,12 @@
+# robots.txt generated at http://www.51240.com
+User-agent: Googlebot
+Disallow: 
+User-agent: Slurp
+Disallow: 
+User-agent: baiduspider
+Disallow: 
+User-agent: *
+Disallow: 
+Disallow: /org/
+Sitemap: http://shuchaoma.com/sitemap.html
+

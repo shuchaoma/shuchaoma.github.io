@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Python errno模块</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Python errno模块</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org15dd1e7">1. preface</a></li>
+<li><a href="#org11a8c45">2. Linux中的errno</a>
+<ul>
+<li><a href="#orgc968662">2.1. 简介</a></li>
+<li><a href="#org9b43bf6">2.2. 输出error信息：两个相关系统调用</a>
+<ul>
+<li><a href="#orgfb83219">2.2.1. strerr ：</a></li>
+<li><a href="#org6018eb3">2.2.2. perror</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org0e27239">3. python中的errno模块</a>
+<ul>
+<li><a href="#org17d4c20">3.1. Example</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org15dd1e7" class="outline-2">
+<h2 id="org15dd1e7"><span class="section-number-2">1</span> preface</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+操作系统编程中会难免会出现各种各样的错误，比如：要读取的文件没有权限或者不存在该文件、I/O error、Out of memory、Too many open files等等。
+为了能够让应用程序识别并处理这些错误，*nix都会定义了一套错误处理方案：
+</p>
+<div class="org-src-container">
+<pre class="src src-text">- &#23450;&#20041;&#20840;&#23616;&#21464;&#37327;errno&#65292;&#24403;Unix&#20989;&#25968;&#20986;&#29616;&#38169;&#35823;&#26102;&#20462;&#25913;&#36825;&#20010;&#20540;&#12290;
+- errno&#30340;&#20540;&#20195;&#34920;&#24403;&#21069;&#31995;&#32479;&#26368;&#36817;&#19968;&#27425;&#38169;&#35823;&#20449;&#24687;&#30340;&#32534;&#21495;
+- errno&#26159;&#19968;&#20010;&#25972;&#22411;&#20540;&#65292;&#19981;&#21516;&#30340;&#20540;&#20195;&#34920;&#19981;&#21516;&#30340;&#31995;&#32479;&#38169;&#35823;&#12290;
+- &#20197;&#19978;&#20869;&#23481;&#21487;&#20197;&#22312;linux/include/errno.h&#20013;&#25214;&#21040;&#12290;
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org11a8c45" class="outline-2">
+<h2 id="org11a8c45"><span class="section-number-2">2</span> Linux中的errno</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-orgc968662" class="outline-3">
+<h3 id="orgc968662"><span class="section-number-3">2.1</span> 简介</h3>
+<div class="outline-text-3" id="text-2-1">
+<ul class="org-ul">
+<li>其实类*nix实现的errno基本是一致的，其接口、错误类型都兼容posix标准。</li>
+<li>Linux的errno头文件位于linux/include/errno.h，起包含errno的定义，以及各类错误信息的整型值（当然会用容易理解的标志符代替数字）。</li>
+<li>建议大家看看自己手头*nix系统内的该头文件。</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org9b43bf6" class="outline-3">
+<h3 id="org9b43bf6"><span class="section-number-3">2.2</span> 输出error信息：两个相关系统调用</h3>
+<div class="outline-text-3" id="text-2-2">
+</div>
+<div id="outline-container-orgfb83219" class="outline-4">
+<h4 id="orgfb83219"><span class="section-number-4">2.2.1</span> strerr ：</h4>
+<div class="outline-text-4" id="text-2-2-1">
+<div class="org-src-container">
+<pre class="src src-c">&#20989;&#25968;&#21407;&#22411;&#65306;
+- <span style="color: #7aa6da;">char</span> * strerror<span style="color: #eaeaea;">(</span><span style="color: #7aa6da;">int</span> <span style="color: #e7c547;">errno</span><span style="color: #eaeaea;">)</span>
+&#21547;&#20041;&#65306;
+- &#26681;&#25454;&#31995;&#32479;errno&#20540;&#36820;&#22238;&#30456;&#24212;&#30340;&#8220;&#20154;&#31867;&#21487;&#38405;&#35835;&#30340;&#8221;&#38169;&#35823;&#20449;&#24687;&#12290;<span style="color: #eaeaea;">&#65288;</span>&#22312;errno.h&#23545;&#27599;&#19968;&#20010;errno&#23384;&#22312;&#30456;&#20851;&#30340;&#27880;&#37322;<span style="color: #eaeaea;">&#65289;</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6018eb3" class="outline-4">
+<h4 id="org6018eb3"><span class="section-number-4">2.2.2</span> perror</h4>
+<div class="outline-text-4" id="text-2-2-2">
+<div class="org-src-container">
+<pre class="src src-c">&#21407;&#22411;&#65306;
+- <span style="color: #7aa6da;">void</span> perror<span style="color: #eaeaea;">(</span><span style="color: #b9ca4a;">const</span> <span style="color: #7aa6da;">char</span> *<span style="color: #e7c547;">s</span><span style="color: #eaeaea;">)</span>
+&#21547;&#20041;&#65306;
+- &#31995;&#32479;&#20250;&#22312;s&#23383;&#31526;&#20018;&#21518;&#21152;&#19978;&#38169;&#35823;&#21407;&#22240;&#30340;&#23383;&#31526;&#20018;&#12290;
+</pre>
+</div>
+
+<p>
+注：
+</p>
+<ul class="org-ul">
+<li>系统设计errno值是“全局变量”，也就是它是非进程线程安全的；所以说多进程、对线程编程中就无法使用errno进行错误处理。</li>
+<li>其实并不完全如此，合理的说法是：errno默认是全局变量，但是如果要支持并发编程的话，需要定义特定的宏<sub>LIBC</sub><sub>REENTRANT来将errno私有化为进程空间的私有变量</sub>。</li>
+</ul>
+
+<p>
+具体可参考：<a href="http://www.cnblogs.com/fjutacm/p/5969c7593fdb6516c11a55b0e6813938.html">会用errno，事半功倍</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0e27239" class="outline-2">
+<h2 id="org0e27239"><span class="section-number-2">3</span> python中的errno模块</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+大部分编程语言设计时为了增强对系统的操纵能力，都会提供直接对应或者间接对应系统调用的函数。
+Python作为流行度很高、适用场景十分丰富的computer language，当然对系统调用做了很翔实的封装。其中系统的errno部分，python单独实现了一个errno模块。
+</p>
+
+<p>
+error模块内部仅有DATA没有任何method、class；其中的DATA按照数据类型划分可氛围两类：
+</p>
+<ul class="org-ul">
+<li>第一类就是一个字典： errno.errorcode。 This dictionary  providing a mapping from the errno value to the string name in the underlying system.</li>
+<li>第二类是一大批int类型的数据，每个整型值代表系统定义的一个错误类型。（当然每个int类型值定义了一个对应的变量名）</li>
+</ul>
+
+<p>
+同C语言一样，如果想打印出某错误号对应的错误信息；需要使用os.strerror()函数。
+</p>
+</div>
+
+<div id="outline-container-org17d4c20" class="outline-3">
+<h3 id="org17d4c20"><span class="section-number-3">3.1</span> Example</h3>
+<div class="outline-text-3" id="text-3-1">
+<div class="org-src-container">
+<pre class="src src-python">&gt;&gt;&gt; <span style="color: #b9ca4a;">import</span> errno
+&gt;&gt;&gt; <span style="color: #c397d8;">type</span><span style="color: #eaeaea;">(</span>errno.errorcode<span style="color: #eaeaea;">)</span>
+&lt;<span style="color: #c397d8;">type</span> <span style="color: #70c0b1;">'dict'</span>&gt;
+&gt;&gt;&gt; <span style="color: #b9ca4a;">print</span><span style="color: #eaeaea;">(</span>errno.EPERM<span style="color: #eaeaea;">)</span>
+1
+&gt;&gt;&gt; <span style="color: #b9ca4a;">import</span> os
+&gt;&gt;&gt; os.strerror<span style="color: #eaeaea;">(</span>errno.EPERM<span style="color: #eaeaea;">)</span>
+<span style="color: #70c0b1;">'Operation not permitted'</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

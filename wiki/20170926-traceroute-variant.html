@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>traceroute的几个变体</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">traceroute的几个变体</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge9d5502">1. Revision History</a></li>
+<li><a href="#orgfd6ef00">2. Preface</a></li>
+<li><a href="#org6837185">3. traceroute</a>
+<ul>
+<li><a href="#org01bc7cb">3.1. 以UDP作为探测包</a></li>
+<li><a href="#orgb190324">3.2. 以TCP作为探测包</a></li>
+<li><a href="#org2d76229">3.3. 以ICMP作为探测包</a></li>
+</ul>
+</li>
+<li><a href="#org1b724c3">4. LFT（layer four traceroute）</a></li>
+<li><a href="#orgb60fedc">5. Paris Traceroute</a></li>
+<li><a href="#org0de941a">6. 其他工具汇总</a>
+<ul>
+<li><a href="#org2ec2b0f">6.1. Path Analyzer Pro</a></li>
+<li><a href="#org8f7d2e0">6.2. PathPing</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge9d5502" class="outline-2">
+<h2 id="orge9d5502"><span class="section-number-2">1</span> Revision History</h2>
+<div class="outline-text-2" id="text-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">date</th>
+<th scope="col" class="org-left">modification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">20170926</td>
+<td class="org-left">first draft</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgfd6ef00" class="outline-2">
+<h2 id="orgfd6ef00"><span class="section-number-2">2</span> Preface</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+在<a href="./20170919-traceroute.html">20170919-traceroute</a>中我们探讨了traceroute（mainly for *nix）的一些基本原理；除了操作系统提供的基本trace工具，还有不少trace工具的变体，比如LFT（layer four traceroute）、Paris Traceroute等。今日我们讨论一下不同trace方案的比较。
+</p>
+
+<p>
+详细的探测流程在之前文章已经介绍，下面主要介绍一些不同点。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6837185" class="outline-2">
+<h2 id="org6837185"><span class="section-number-2">3</span> traceroute</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+首先我们关注一些traceroute不同探测包的不同。
+各类*nix的traceroute工具默认使用UDP作为作为探测报文，其实traceroute（部分版本过低，可能不支持）支持ICMP、TCP、UDP等多种协议作为探测包。
+</p>
+</div>
+
+<div id="outline-container-org01bc7cb" class="outline-3">
+<h3 id="org01bc7cb"><span class="section-number-3">3.1</span> 以UDP作为探测包</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+当以UDP作为探测包时，如果没有达到end system，返回的time exceed icmp包；到达end system后，会返回是unreachable port icmp报文，traceroute感知后结束进程。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb190324" class="outline-3">
+<h3 id="orgb190324"><span class="section-number-3">3.2</span> 以TCP作为探测包</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+当以TCP作为探测包(SYN or FIN)时，如果没有到达end system，返回的是time exceed icmp包；到达end system后，会返回ACK/RST报文, 从而traceroute感知后结束进程。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2d76229" class="outline-3">
+<h3 id="org2d76229"><span class="section-number-3">3.3</span> 以ICMP作为探测包</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+当以ICMP作为探测包时，如果没有到达end system，返回的是time exceed icmp包；到达end system后，会返回reply报文，从而traceroute感知后结束进程。
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org1b724c3" class="outline-2">
+<h2 id="org1b724c3"><span class="section-number-2">4</span> LFT（layer four traceroute）<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup></h2>
+<div class="outline-text-2" id="text-4">
+<p>
+LFT是一个四层的trace工具，相比传统的traceroute，其运行速度快很多(据sb统计要快20倍)且可以穿越很多firewall。更重要的是LFT提供很多其他feature：
+</p>
+<ul class="org-ul">
+<li>AS number查询</li>
+<li>loose source routing</li>
+<li>netblock name lookup</li>
+</ul>
+<p>
+可以将LFT理解为ALL-IN-ONE的一款trace工具，它支持ICMP、UDP和TCP协议的探测方式，或者RFC1393探测方式。
+</p>
+
+<p>
+未来计划写一篇针对LFT的源码剖析，敬请期待。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb60fedc" class="outline-2">
+<h2 id="orgb60fedc"><span class="section-number-2">5</span> Paris Traceroute<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup></h2>
+<div class="outline-text-2" id="text-5">
+<p>
+PPT: <a href="http://media.frnog.org/FRnOG_10/FRnOG_10-3.pdf">http://media.frnog.org/FRnOG_10/FRnOG_10-3.pdf</a>
+Paris Traceroute是另外一款trace家族的软件工具;其专注于探索路由图谱。现实生活中的大量的路由设备是通过liad balance方式运作的；所以传统的trace工具往往只能探索到不完整的甚至错误的路径。而这款工具通过控制packet header，
+从而尽可能获取更完整、准确的路由拓扑图。
+</p>
+</div>
+</div>
+
+
+
+<div id="outline-container-org0de941a" class="outline-2">
+<h2 id="org0de941a"><span class="section-number-2">6</span> 其他工具汇总</h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-org2ec2b0f" class="outline-3">
+<h3 id="org2ec2b0f"><span class="section-number-3">6.1</span> <a href="http://www.pathanalyzer.com/">Path Analyzer Pro</a></h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+这是一款基于LFT代码开发的GUI版本，GUI版本需要付费。
+</p>
+</div>
+</div>
+<div id="outline-container-org8f7d2e0" class="outline-3">
+<h3 id="org8f7d2e0"><span class="section-number-3">6.2</span> <a href="https://en.wikipedia.org/wiki/PathPing">PathPing</a></h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+这是一款WinNT系统提供的trace工具, 它结合了traceroute和ping的特性，对探测到的每个一个node都会通过ping进行统计验证,它输出的路由信息是经过一段时间汇总出来的结果，而不是单独的一次traceroute信息。当然缺点是运行时间会相对来说长很多。
+</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+<a href="http://pwhois.org/lft/">LFT官方主页</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://paris-traceroute.net/">paris-traceroute主页</a>
+</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

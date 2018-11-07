@@ -1,0 +1,105 @@
+#+Title: python标准库
+#+Date: 20171107
+
+任何一门计算机语言出现，除了自身的语义语法之外，往往都自带不少标准库；方便用户控制计算机（C语言除外，系统调用接口本身就是用c实现的）。
+python在这方面相比其他语言优势更加明显。其内置标准库涵盖文件操作、文本处理、高级数据结构、压缩、网络协议、函数式编程、调试等各各个方面。[fn:1]
+
+下面给个人维护平时所用标准库的Introduction，重在使用场景和注意点。
+
+* struct
+** 功能
+ struct模块唯一的作用是帮助python对象与C语言struct（结构体）相互转换。
+struct模块主要实现了三个函数：
+- struct.pack() : 将python对象pack成二进制流
+- struct.unpack()：将二进制流unpack成python对象
+- struct.calcsize()： 计算fmt的所在内存空间的字节数。
+** 使用场景
+1. 网络交互
+类似于HTTP使用纯文本交互的协议并不在多数，大量协议或者软件设计时使用的是“二进制”格式；这个场景特别适用于struct模块。
+当发送数据时，需要将待发送的协议or数据字段按照fmt pack为二进制流。
+当接受数据时，需要将接收到的协议or数据字段按照fmt unpack为python对象。
+2. 二进制文件读写
+很多图像格式、地球物理地震资料数据通过二进制存储；对二进制文件读写也是struct的用武之地。
+** 注意事项
+1. struct模块除了实现了对应的pack、unpack函数外，还单独定义了Struct类。在对单个fmt进行大批量、多次数据转换时，运行效率会更高一些。
+2. struct模块使用时，fmt格式定义需要指定byte-order-alignment：这个技术点可能引发的内存空间溢出、写入与实际读出数据不同等问题。（@、=、<、>、? 标识不同byte-order-alignment选项）
+3. struct模块使用时，fmt格式对每个元素占用内存空间的长度需要明确。(同时对端如果使用C语言撰写，也要保证甚至最好在不同的平台上，可以生成我们预想的长度的二进制流)
+4. 很多时候，namedtuple跟struct一起使用。
+
+* uuid
+** 功能：
+uuid (universally unique identifiers 全局唯一标志符)。这个模块根据RFC 4122定义了几个不同的uuid的函数。
+** 使用场景
+1. 关系数据库中为每一个record设定一个标志时。
+** 注意事项
+1. uuid.uuid1(): 基于时间戳、mac、随机数生成；可以保证全球范围内唯一。当然也存在安全信息泄露的可能性。
+2. uuid.uuid3()：基于名字的md5散列值生成；相同命名空间内同一个name生成的uuid一致。
+3. uuid.uuid4()：基于随机数，有一定重复概率。最好不用。
+5. uuid.uuid5()：同uuid3，不同的是使用SHA-1算法。
+一般情况下，uuid1就是你说要的。
+* collection模块
+** 简介
+collection模块实现了一些比较特别的容器类型，用来替代通用的内置类型tuple、list、dict、set等。在某些场景下，这些specialized类型更加切合。
+下面介绍几个常用的类型。
+
+** namedtuple
+Returns a new tuple subclass named typename. (namedtuple会返回tuple的之类），这个之类与tuple的区别在于：python内置的tuple只能通过positon来索引元素，而namedtuple可以通过key索引元素。
+一切可以使用tuple的地方都可以使用namedtuple代替。用法举例：
+#+BEGIN_SRC python
+>>> import collections
+>>> Point = collections.namedtuple("Point", "x, y, z")
+>>> p1 = Point(1, 2, 3)
+>>> print(p1)
+Point(x=1, y=2, z=3)
+>>> p2 = Point(z=4, y=5, z=6)
+>>> p2 = Point(z=4, y=5, x=6)
+>>> print(p2)
+Point(x=6, y=5, z=4)
+>>> p1+p2
+(1, 2, 3, 6, 5, 4)
+>>> p3 = Point._make([7, 8, 9])
+>>> print(p3)
+Point(x=7, y=8, z=9)
+#+END_SRC
+注：
+1. namedtuple返回的是一个class 类型，而p1 = Point(1, 2, 3)这是生成一个class实例，也就是对象。
+2. Point._make(iterable)函数接受一个iterable，将起转换为Point对象。
+
+** Counter
+dict subclass for counting hashable objects.
+It is an unordered collection where elements are stored as dictionary keys and their counts are stored as dictionary values.
+在其他计算机语言，Counter有时也被称之为multiset。
+#+BEGIN_SRC python
+原型：collections.Counter([iterable-or-mapping])
+- Elements are counted from an iterable or initialized from another mapping (or counter)
+- 对iterable进行统计计数，返回一个Counter对象。或者通过一个mapping初始化一个Counter对象。
+>>> c = Counter()                           # a new, empty counter
+>>> c = Counter('gallahad')                 # a new counter from an iterable
+>>> c = Counter(cats=4, dogs=2, people=3)   # a new counter from a mapping
+>>> c.most_common(2)
+[('cats', 4), ('people', 3)]
+>>> list(c.elements())
+['cats', 'cats', 'cats', 'cats', 'dogs', 'dogs', 'people', 'people', 'people']
+#+END_SRC
+** deque
+list-like container with fast appends and pops on either end.
+deque是一个栈/队列的通用实现,是double-ended queue的简称。它支持线程安全的、更加有效的、在两端进行pop、append操作，而且仅有O(1)的复杂度。
+尽管list也可以支持双端操作，但是在left侧进行pop和插入时，需要O(n)复杂度。
+deque比较常用的method有：
+append(x)、appendleft(x)、pop、popleft、clear、count(x)等
+
+** OrderedDict
+dict subclass that remembers the order entries were added
+OrderdDict用起来跟dict基本一样,唯一的区别是它会记住元素被插入的顺序，支持按序输出元素。
+#+BEGIN_SRC python
+>>> # regular unsorted dictionary
+>>> d = {'banana': 3, 'apple': 4, 'pear': 1, 'orange': 2}
+
+>>> # dictionary sorted by key
+>>> OrderedDict(sorted(d.items(), key=lambda t: t[0]))
+OrderedDict([('apple', 4), ('banana', 3), ('orange', 2), ('pear', 1)])
+#+END_SRC
+
+* Footnotes
+
+[fn:1] [[https://docs.python.org/3/library/index.html][The Python Standard Library]]

@@ -1,0 +1,155 @@
+#+Title: python class综述
+
+* preface
+
+python的世界流行一句话“一切都是对象”，无论类、变量、参数、函数都是对象。
+这么多不同类型的对象，有着不同的作用。为了避免概念混淆，先理清楚一些概念。
+** 类（class）:[fn:1]
+A template for creating user-defined objects.
+Class definitions normally contain method definitions which operate on instances
+of the class.
+class是一个用来生成对象的模板；通常类的定义包含方法（method）的定义和一些属性的
+声明。
+** 类实例（instance）
+类实例可以指的是类实例化后生成的对象。
+** 属性（attribute）
+A value associated with an object which is referenced by name using dotted
+expressions.For example, if an object o has an attribute a it would be
+referenced as o.a.
+由此可见，类中的method和varibale都属于类对象的属性。
+** 其他
+1. python类支持支持两种操作: attribute references(属性应用) and
+   instantiation（实例化）.
+- 属性引用就是类似于"object.name"这类形式
+- 类的实例化就是将类作为函数一样使用，然后生成一个类对象。
+
+2. 类属性访问限制
+C++中通过public、private关键字限制变量、函数的对外接的访问能力。
+Python曰：
+- 如果变量以__(两个下划线)开头，自动设置该变量为私有变量。
+- 如果变量以_(一个下划线)开头，这类变量无访问限制；但是不建议直接访问该属性。
+- 如果变量以__开头、且__结尾，这类变量属于python的特殊变量，不建议用户自定义的变
+  量使用这类命令。这类变量无访问限制。
+3. tips
+- 使用type(object)可以查看object的类型。
+- 使用isinstance(object, type)用于验证object是否是type类型。
+- dir(obj) 可以获取相应对象的所有属性和方法名的列表
+- 使用 hasattr(obj, attr) 判断对象是否具有指定属性/方法
+- 使用 getattr(obj, attr[, default]) 获取属性/方法的值, 要是没有对应的属性则返回
+  default 值（前提是设置了 default），否则会抛出 AttributeError 异常；
+- 使用 setattr(obj, attr, value) 设定该属性/方法的值，类似于 obj.attr=value.
+
+* 继承&多态
+1. 子类可以通过继承获取父类的所有属性（含变量、方法）
+2. 之类可以新增自己的方法，也可以重写父类的方法。（后者会产生多态的效果）
+3. 有了继承，才有了多态，不同类的对象对同一函数调用会作出不同的响应。
+
+* super[fn:2]
+通过“继承”子类可以轻松获取父类的方法，通过“重写”之类可以定制适合自己的方法。
+但是在“重写”某个方法时，之类期望可以调用父类该方法，完成部分初始化功能。这时就是
+super出场的时候了。
+使用方法见参考链接，此处不再赘述。
+* classmethod&staticmethod
+类的方法中存在两种特别的例子：类方法（classmethod）和静态方法（staticmethod）。
+这两个方法的定义同时通过在普通的函数上一行增加修饰器@classmethod或者
+@staticmethod定义。
+** classmethod
+classmethod指的是这个方法属于类，而不属于类实例化的对象。
+其操作的内容往往是“类变量”。
+定义该方法时有两点需要注意：一是需要@classmethod修饰器，而是methodd第一个参数必
+须是cls。
+** staticmethod
+类中存在一些方法与类有关，但是不会改变类和实例中的任何状态；这种方法称之为
+staticmethod。
+这类方法的定义也有两点注意事项：一是需要@staticmethod修饰，二是method参数既没有
+cls，也没有self。
+具体例子参考：[[https://github.com/ethan-funny/explore-python/blob/master/Class/method.md][类方法&静态方法]]
+
+* 特殊方法/魔法方法（magic method/magic method）
+在python中经常看到类似于__init__的方法,函数名前后都有两个下划线；在python中定义
+了大量的这类方法，用户在定义自己的类时尤其有用；Python解析器对每一个这样的方法做
+出不同的解释。我们称这类方法为“special/magic method”。
+下面我们列举一些这类方法（完整列表参考[[https://docs.python.org/3.6/reference/datamodel.html#special-method-names][python-special-method]]）:
+1. __new__
+在类实例化时，Python解析器首先调用__new__来创建实例，然后调用__init__对实例进行
+初始化。关于__new__需要注意：
+- __new__ 是在 __init__ 之前被调用的；
+- __new__ 是类方法，__init__ 是实例方法；
+- 重载 __new__ 方法，需要返回类的实例；
+一般情况下，我们不需要重载__new__方法，只有在需要控制实例的创建过程时，才需要通
+过重载__new__。
+2. __enter__ 和 __exit__
+如[[./20171027-Python-Glossary.org][生成器]]所说，这两个special method结合可以定义出可被with语句使用的上下文管理器。
+
+3. __iter__ 和 __next__（python2.7是next方法）
+同上，这两个函数相互结合，可以定义出迭代器。
+而在类中定义__iter__，可以让对类生成的对象为可迭代对象。
+
+4. __str__ 和 __repr__
+对类对象调用str或者print函数时，会输出__str__内容。
+而__repr__这是在调用repr函数输出的内容，是对象在python解析器中的official string
+reprenstation.(详情参考[[https://github.com/ethan-funny/explore-python/blob/master/Class/magic_method.md][magic method]])
+
+5. __getitem__
+有时，我们希望可以使用 obj[n] 这种方式对实例对象进行取值。需要重载该方法。
+同上，类似的还有：
+__setitem__：例如用于"p['x'] = 2"设置值
+__delitem__: 例如用于"del p['x']"删除值。
+
+6. __call__
+一般我们调用对象的方法的格式object.method()。但我们定义了一个method时，python解
+析器自动给它增加了__call__方法；如果我们让某个类实例具备“可调用属性”，直接在类定
+义中增加__call__方法即可。
+#+begin_src python
+class Point(object):
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __call__(self, z):
+        return self.x + self.y + z
+
+#结果如下
+>>> p = Point(3, 4)
+>>> callable(p)     # 使用 callable 判断对象是否能被调用
+True
+>>> p(6)            # 传入参数，对实例进行调用，对应 p.__call__(6)
+13                  # 3+4+6
+#+end_src
+7. __len__
+当对object调用len(object)函数时，该函数会被调用；返回值为该object的长度。
+
+* __slots__
+默认情况下, 类的实例有一个词典变量（__dict__）存放该实例的所有属性。 即使类中没有
+定义的属性，在动态调用阶段也可以绑定。这个特性对于拥有少量变量的类实例，过于浪费
+内存空间。
+通过在类中定义__slots__变量，可以避免__dict__的生成；并且__slots__存放所有可访问
+的变量列表。这样类实例时只为列表内的元素申请空间。
+
+* 元类(metaclass)
+类(class)实例化后生成的对象是“instance”
+元类(metaclass)实例化后生成的对象是“class（类）”。
+按照Python-Glossary的定义：
+The class of a class. Class definitions create a class name, a class dictionary,
+and a list of base classes. The metaclass is responsible for taking those three
+arguments and creating the class. Most object oriented programming languages
+provide a default implementation. What makes Python special is that it is
+possible to create custom metaclasses. Most users never need this tool, but when
+the need arises, metaclasses can provide powerful, elegant solutions. They have
+been used for logging attribute access, adding thread-safety, tracking object
+creation, implementing singletons, and many other tasks.
+metaclass就是用来生成类的类。我们平时都是定义类、然后用起生成类的实例；而这里叫
+我们定义元类，然后用来生成元类的实例（即类）。
+
+
+* Footnotes
+
+[fn:1] [[https://docs.python.org/3/glossary.html][python-Glossary(class defination)]]
+
+[fn:2] [[https://github.com/ethan-funny/explore-python/blob/master/Class/super.md][你说不知道的super]]
+=======
+
+* 继承&多态
+
+* classmethod&staticmethod
+
+* 元类
+>>>>>>> 078818fc9cb99748da04bde031aa30ad3d784a79

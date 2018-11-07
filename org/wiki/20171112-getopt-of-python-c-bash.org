@@ -1,0 +1,194 @@
+#+Title: 命令行参数处理(c/bash/python)
+
+* preface
+编写命令行工具时，往往需要对命令行参数进行逻辑判断或者提取其中的值。几乎各类语言
+都提供了针对性的工具或者函数来处理这个场景。
+
+讲解参数处理之前，我们先了解命令行参数进行分类。
+按照参数长短来分，命令行参数可分为长参数（--color）和短参数（-c）。
+按照参数作用区分，有如下三种情况：
+- 不带值的参数。 （比如ls -a）
+- 必须带值的参数。(比如 cut -d : -f 1,7 /etc/passwd)
+- 可选值的参数。
+
+
+* c语言[fn:1]
+作为系统语言，c语言提供了最为原始的命令行参数处理函数：getopt。（与其说C语言提供，不如说系统提供,通过 man 3 getopt查看man文档）。
+#+BEGIN_SRC c
+       #include <unistd.h>
+       int getopt(int argc, char * const argv[],
+                  const char *optstring);
+       extern char *optarg;
+       extern int optind, opterr, optopt;
+#+END_SRC
+** 函数参数
+getopt函数用于提取命令行中的参数（且参数必须是短参数）。
+- 参数argc、argv为main函数的两个参数
+- optstring为用户为该应用程序定义的选项。比如"1abc:d::"。
+** getopt参数分类
+char*optstring = “ab:c::”;
+<<<<<<< HEAD
+- 单个字符a         表示选项a没有参数            格式：-a即可，不加参数
+- 单字符加冒号b:     表示选项b有且必须加参数      格式：-b 100或-b100,但-b=100错
+- 单字符加2冒号c::   表示选项c可以有，也可以无     格式：-c200，其它格式错误
+=======
+单个字符a         表示选项a没有参数            格式：-a即可，不加参数
+单字符加冒号b:     表示选项b有且必须加参数      格式：-b 100或-b100,但-b=100错
+单字符加2冒号c::   表示选项c可以有，也可以无     格式：-c200，其它格式错误
+>>>>>>> 078818fc9cb99748da04bde031aa30ad3d784a79
+** 函数处理流程
+注意到有几个全局变量：
+- optarg (char*)： 指向当前选项参数值（如果有的话）的指针。
+- optind (int) 再次调用 getopt() 时的下一个 argv指针的索引。
+- opterr (int): 如果不希望getopt()打印出错信息，则只要将全域变量opterr设为0即可。
+- optopt (int): 最后一个未知选项。
+
+getopt函数与这几个全局变量配合，完成了参数处理的流程。
+getopt随着调用次数的增多，顺次提取argv中的参数，每次只能提取一个参数字符并返回该
+字符，并通过全局变量optind保存下一次需要访问argv的位置；如果当前提取的参数是“带
+值的参数”，则optarg保存值。
+如果要提取argv内所有参数，需要将getopt放到一个while循环内,直到其返回值-1停止。
+** 函数返回值
+If an option was successfully found, then getopt() returns the option character.
+If all command-line options have been parsed, then  getopt() returns  -1.
+If  getopt()  encounters an option character that was not in optstring, then '?' is returned.
+If getopt() encounters an option with a missing argument, then the return value depends on the first character in optstring: if it is ':', then ':' is returned; otherwise  '?' is returned.
+** 例子
+#+begin_src c
+       #include <unistd.h>
+       #include <stdlib.h>
+       #include <stdio.h>
+
+       int
+       main(int argc, char *argv[])
+       {
+           int nsecs=0, tfnd;
+           int flags=0, opt;
+
+           while ((opt = getopt(argc, argv, "nt:")) != -1) {
+               switch (opt) {
+               case 'n':
+                   flags = 1;
+                   break;
+               case 't':
+                   nsecs = atoi(optarg);
+                   tfnd = 1;
+                   break;
+               default: /* '?' */
+                   fprintf(stderr, "Usage: %s [-t nsecs] [-n] \n",
+                           argv[0]);
+                   exit(EXIT_FAILURE);
+               }
+           }
+           printf("flags=%d; tfnd=%d; optind=%d\n", flags, tfnd, optind);
+           printf("nsecs= %d\n", nsecs);
+           exit(EXIT_SUCCESS);
+       }
+#+end_src
+执行命令，结果如下：
+#+begin_src bash
+pi@raspberrypi:~ $ ./a.out -t 30
+flags=0; tfnd=1; optind=3
+nsecs= 30
+pi@raspberrypi:~ $ ./a.out -n
+flags=1; tfnd=0; optind=2
+nsecs= 0
+pi@raspberrypi:~ $ less /tmp/haha.c
+pi@raspberrypi:~ $ ./a.out -n -t 45
+flags=1; tfnd=1; optind=4
+nsecs= 45
+#+end_src
+** 长参数处理
+getopt只能处理短参数，为了可以处理长参数#include <getopt.h>提供了getopt_long函数；
+具体用法参考man文档。
+
+* bash
+做运维的人估计最熟悉这种情况了。bash存在两种方式进行命令行参数处理：
+1. getopts：这是bash内置的关键字，只能用来出来短参数，用起来跟c语言getopt有些类似。
+2. getopt：这是bash中的一个单独的可执行文件，支持长、短参数。
+具体用法不在赘述，参考网友写的几篇文章：
+1. [[http://www.cnblogs.com/FrankTan/archive/2010/03/01/1634516.html][Bash Shell中命令行选项/参数处理]]
+2. [[http://blog.csdn.net/MonroeD/article/details/50516515][Bash shell编程<七>：处理选项、getopt命令]]
+
+* python语言
+python提供了两个模块用于命令行选项处理：一个是传统的getopt模块，一个是自python2.7
+引入的argparse模块。前者用起来跟C语言相似，但是后者用起来更加直观、写的代码更少。
+注：python2.7之前有个optparse模块已被废弃。
+
+** getopt模块[fn:2]
+这个模块提供了分析sys.argv中命令行参数的能力；其作用与系统getopt作用完全一致。
+
+*** 这个模块包含两个函数和一个异常：
+#+begin_src python
+1. getopt.getopt(args, shortopts[, longopts=[]])
+- 第一个参数args指的是要分析的命令行参数列表；通常为 sys.argv[1:]。
+- 第二个参数为要分析的“短选项”格式定义；比如“abc:d:”。 其格式定义与C语言中的短选项格式一致。
+- 第三个参数为可选参数，代表要分析的“长选项”格式定义；其格式是字符串组成的列表（如果一个选项含有参数，则该选项字符串以=结束。）
+- 返回值：该函数返回两个元素。第一个元素为（option, value）组成的list，第二个元素为去除函数option之后剩下的命令行参数。
+2. getopt.gnu_getopt(args, shortopts[, longopts=[]])
+- 跟getopt.getopt作用完全一致；唯一区别在于使用gun style解决命令行参数(option and non-option arguments may be intermixed. )。
+3. exception getopt.GetoptError
+- 当一个未识别的option被发现，或者一个需要argument的option没有提供argument时，会产生该异常。
+#+end_src
+*** An example using only Unix style options
+#+begin_src python
+>>> import getopt
+>>> args = '-a -b -cfoo -d bar a1 a2'.split()
+>>> args
+['-a', '-b', '-cfoo', '-d', 'bar', 'a1', 'a2']
+>>> optlist, args = getopt.getopt(args, 'abc:d:')
+>>> optlist
+[('-a', ''), ('-b', ''), ('-c', 'foo'), ('-d', 'bar')]
+>>> args
+['a1', 'a2']
+#+end_src
+*** 同时使用short option和long option
+#+begin_src python
+import getopt, sys
+
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "output="])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(err)  # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+    output = None
+    verbose = False
+    for o, a in opts:
+        if o == "-v":
+            verbose = True
+        elif o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif o in ("-o", "--output"):
+            output = a
+        else:
+            assert False, "unhandled option"
+    # ...
+
+if __name__ == "__main__":
+    main()
+#+end_src
+注：
+- 短选项-h与长选项--help对应，并且无参数。
+- 短选项-o与长选项--output对应，并且有参数。
+- 短选项-v单独是一个选项。
+
+** argparse模块[fn:3]
+The argparse module makes it easy to write user-friendly command-line interfaces.
+The program defines what arguments it requires, and argparse will figure out how to parse those out of sys.argv.
+The argparse module also automatically generates help and usage messages and issues errors when users give the program invalid arguments.
+
+<<<<<<< HEAD
+这个模块相比于传统的getopt体系更加friendly，使用方法参考官方文档。
+
+=======
+>>>>>>> 078818fc9cb99748da04bde031aa30ad3d784a79
+
+* Footnotes
+
+[fn:1] [[https://www.cnblogs.com/chenliyang/p/6633739.html][命令行选项解析函数(C语言)：getopt()和getopt_long()]]
+[fn:2] [[https://docs.python.org/3/library/getopt.html][python getopt module]]
+[fn:3] [[https://docs.python.org/3.6/library/argparse.html][python argparse module]]

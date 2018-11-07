@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>traceroute</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">traceroute</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgd3162ea">1. Introduction</a></li>
+<li><a href="#org46f614e">2. 用ping探索路由</a></li>
+<li><a href="#org213728d">3. The Theory of tranceroute</a></li>
+<li><a href="#org6894543">4. some key point</a>
+<ul>
+<li><a href="#org9d0c256">4.1. 协议</a></li>
+<li><a href="#org2121571">4.2. 时延计算</a></li>
+<li><a href="#orge6877e4">4.3. 路径保证</a></li>
+</ul>
+</li>
+<li><a href="#orga8cc125">5. traceroute的注意点</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgd3162ea" class="outline-2">
+<h2 id="orgd3162ea"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+除了ping之外，traceroute应该是作为流行的网络诊断工具了;这个工具主要用来“显示IP packets的路由信息”和“衡量IP packets的时延情况”。
+根据man手册，traceroute最开始是Van Jacobson在1987年开发的；后来广泛移植到各大平台（mac、Linux、WinNT等）；其中WinNT系统上名称叫tracert。
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org46f614e" class="outline-2">
+<h2 id="org46f614e"><span class="section-number-2">2</span> 用ping探索路由</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+其实ping存在-R选项，可以在IP包的option段内存放路由信息，但是存在诸多原因，这一特性并没有被广泛的应用；比如：
+</p>
+<ul class="org-ul">
+<li>比如历史原因，并非所有的router支持-R选项</li>
+<li>最重要的是，IP包格式限制了option字段最大有37bytes，也就是最多存放9条路由；它的空间限制了这个特性的应用。</li>
+</ul>
+
+<p>
+相比ping，traceroute提供了更全面的路由探测机制。
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org213728d" class="outline-2">
+<h2 id="org213728d"><span class="section-number-2">3</span> The Theory of tranceroute<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup></h2>
+<div class="outline-text-2" id="text-3">
+<p>
+在传统的*nix系统，traceroute默认发送一系列的UDP报文来实现路由探测；这些UDP报文的目的端口号往往选择目的主机不可能使用的端口号（一般大于30000）。
+在探测的过程中，traceroute利用ICMP报文、TTL来进行控制进度；通过不断增大TTL，根据返回的TCMP报文是“time exceed”或者“port unreachable”来判断是否继续。
+</p>
+
+<p>
+TTL（Time to live）是IP包中一个8bit的区域，IP包的发送方负责初始化这个值。RFC建议应用程序大部分情况下应该设置为64；任何一个IP packet流经某一个router时必须将TTL减1。
+如果路由器收到的IP包的TTL为0或者1，则不会对该报文进行转发；相反的，路由器应该丢弃它并给源主机发送“time exceed” ICMP报文。
+</p>
+
+<p>
+现在我们可以描述traceroute的工作流程：
+</p>
+<ol class="org-ol">
+<li>首先traceroute发送TTL=1的报文，经过第一个路由器器时，路由器将TTL减1，并丢弃；给源主机发送time exceed icmp报文；</li>
+<li>traceroute记录下第一跳的地址并打印；接着发送TTL=2的报文，经过第二个路由器的时候，路由器将TTL减1并丢弃，给源主机发送time exceed 报文。</li>
+<li>…… 如此，知道traceroute发送的TTL=N报文到达目的主机，目的主机当前没有监听相应端口的UDP服务，返回port unreachable报文；</li>
+<li>traceroute打印最后一跳（目的主机），结束运行。</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org6894543" class="outline-2">
+<h2 id="org6894543"><span class="section-number-2">4</span> some key point</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-org9d0c256" class="outline-3">
+<h3 id="org9d0c256"><span class="section-number-3">4.1</span> 协议</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+在*nix平台，traceroute默认使用UDP作为探测报文；而WinNTtracert默认使用ICMP作为探测报文。不过traceroute程序支持-I选项标识使用icmp echo作为探测报文，或者-P选项指定任何协议（UDP、TCP等）。
+</p>
+</div>
+</div>
+<div id="outline-container-org2121571" class="outline-3">
+<h3 id="org2121571"><span class="section-number-3">4.2</span> 时延计算</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+traceroute发送探测包前会将发送时间保存至本地，当对用的包返回后，用当前事件减去保存的发送时间得出RTT延时。
+</p>
+</div>
+</div>
+<div id="outline-container-orge6877e4" class="outline-3">
+<h3 id="orge6877e4"><span class="section-number-3">4.3</span> 路径保证</h3>
+<div class="outline-text-3" id="text-4-3">
+<ol class="org-ol">
+<li>由于互联网本质是一个“分组交换”系统，不能保证不同的包走的是完全相同的路径（虽然往往经常如此）；有些情况下会发现traceroute的数据中存在相同的hop。</li>
+<li>traceroute期望发出的包在指定的时间内（server seconds）返回；如果没有在指定的时间内返回，traceroute利用“星号”来代替返回值，并继续进行下一跳检测。(往往星号的愿意是经过的路由器通过iptables做了策略，禁止icmp time exceed包回传)</li>
+</ol>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga8cc125" class="outline-2">
+<h2 id="orga8cc125"><span class="section-number-2">5</span> traceroute的注意点<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup></h2>
+<div class="outline-text-2" id="text-5">
+<ol class="org-ol">
+<li>traceroute打印的IP紧紧代表经过的网卡接口IP，不能代表路由器的IP。</li>
+<li>如上所说，如果router不相应traceroute或者限制icmp响应的回传，则traceroute不能探测到该路由器。</li>
+<li>网络部署环境设备多样（防火墙、网管、路由load blance），有些traceroute变体有一定的优势：比如tcptraceroute、layer four traceroute、Paris-traceroute等。</li>
+</ol>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+Tcp/ip illustrated: Volume 1
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://en.wikipedia.org/wiki/Traceroute">https://en.wikipedia.org/wiki/Traceroute</a>
+</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

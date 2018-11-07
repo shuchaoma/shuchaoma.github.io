@@ -1,0 +1,60 @@
+#+Title: Python errno模块
+
+* preface
+操作系统编程中会难免会出现各种各样的错误，比如：要读取的文件没有权限或者不存在该文件、I/O error、Out of memory、Too many open files等等。
+为了能够让应用程序识别并处理这些错误，*nix都会定义了一套错误处理方案：
+#+BEGIN_SRC text
+- 定义全局变量errno，当Unix函数出现错误时修改这个值。
+- errno的值代表当前系统最近一次错误信息的编号
+- errno是一个整型值，不同的值代表不同的系统错误。
+- 以上内容可以在linux/include/errno.h中找到。
+#+END_SRC
+
+* Linux中的errno
+** 简介
+- 其实类*nix实现的errno基本是一致的，其接口、错误类型都兼容posix标准。
+- Linux的errno头文件位于linux/include/errno.h，起包含errno的定义，以及各类错误信息的整型值（当然会用容易理解的标志符代替数字）。
+- 建议大家看看自己手头*nix系统内的该头文件。
+** 输出error信息：两个相关系统调用
+*** strerr ：
+#+BEGIN_SRC c
+函数原型：
+- char * strerror(int errno)
+含义：
+- 根据系统errno值返回相应的“人类可阅读的”错误信息。（在errno.h对每一个errno存在相关的注释）
+#+END_SRC
+*** perror
+#+BEGIN_SRC c
+原型：
+- void perror(const char *s)
+含义：
+- 系统会在s字符串后加上错误原因的字符串。
+#+END_SRC
+
+注：
+- 系统设计errno值是“全局变量”，也就是它是非进程线程安全的；所以说多进程、对线程编程中就无法使用errno进行错误处理。
+- 其实并不完全如此，合理的说法是：errno默认是全局变量，但是如果要支持并发编程的话，需要定义特定的宏_LIBC_REENTRANT来将errno私有化为进程空间的私有变量。
+
+具体可参考：[[http://www.cnblogs.com/fjutacm/p/5969c7593fdb6516c11a55b0e6813938.html][会用errno，事半功倍]]
+
+* python中的errno模块
+大部分编程语言设计时为了增强对系统的操纵能力，都会提供直接对应或者间接对应系统调用的函数。
+Python作为流行度很高、适用场景十分丰富的computer language，当然对系统调用做了很翔实的封装。其中系统的errno部分，python单独实现了一个errno模块。
+
+error模块内部仅有DATA没有任何method、class；其中的DATA按照数据类型划分可氛围两类：
+- 第一类就是一个字典： errno.errorcode。 This dictionary  providing a mapping from the errno value to the string name in the underlying system.
+- 第二类是一大批int类型的数据，每个整型值代表系统定义的一个错误类型。（当然每个int类型值定义了一个对应的变量名）
+
+同C语言一样，如果想打印出某错误号对应的错误信息；需要使用os.strerror()函数。
+
+** Example
+#+BEGIN_SRC python
+>>> import errno
+>>> type(errno.errorcode)
+<type 'dict'>
+>>> print(errno.EPERM)
+1
+>>> import os
+>>> os.strerror(errno.EPERM)
+'Operation not permitted'
+#+END_SRC

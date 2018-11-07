@@ -1,0 +1,11 @@
+#+title: blog
+#+STARTUP: showall
+
+* 2018
+- 20180319 [[./blog/20180319-FeixunRouterK2InjectMyHTTPTraffic.org][天了噜，这家路由器厂家竟然这么干！]]
+- 20180204 [[./blog/20180204-concept_of_growth.org][观念的成长]]
+
+* 2017
+- 20170908 [[file:./blog/20170908-GTD-share.org][GTD分享]]
+- 20171010 [[./blog/20171010-orgmode-practice.org][orgmode-practice]]
+- 20171106 [[./blog/20171107-aBugWorthofAWorkday.org][价值一个工作日的BUG]]

@@ -1,0 +1,9 @@
+People  Homepage
+- Richard Stallman  [[http://www.stallman.org/][Richard Stallman's Personal Site]]
+- Eric S. Raymond  [[http://www.catb.org/~esr/][Eric S. Raymond's Home Page]]
+-
+
+
+Good Article
+- [[http://www.catb.org/esr/faqs/smart-questions.html][How To Ask Questions The Smart Way]]
+-

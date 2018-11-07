@@ -1,2 +1,2 @@
 # shuchaoma.github.io
-personal site
+personal writings

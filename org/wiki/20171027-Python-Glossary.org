@@ -1,0 +1,174 @@
+#+Title:  Python术语精解
+
+* iteration、iterable、iterator
+Python支持在容器类型基础上支持“迭代”的概念；这个概念是建立在两个独立的函数基础
+之上；如果用户想让自己定义的class支持iteration，需要在类中定义相关的函数。
+- 如果容器（container）类型要支持iteration，需要在容器类中定义 __iter__()函数。
+- 如果一个类作为迭代器类型使用，则需要在迭代器类中同时定义__iter__()和 __next__()。
+注：只要在类中定义了__iter__()，该类生成的对象都可以应用于for、in语句。
+
+** iteration
+含义“迭代、迭代过程”。
+#+BEGIN_SRC python
+for item in [1, 2, 3]
+    print item
+#+END_SRC
+如上，通过for遍历list[1, 2, 3]的过程称之为iteration。
+
+** iterable[fn:1]
+可迭代对象，这种对象（object）能够一次返回它的一个成员（member）。比如list、str、
+tuple、dict类型对象都是可迭代对象（iterable）。其实只要一个类（Class）定义了
+__item__()方法或者__getitem__()方法，其生成的对象就是可迭代对象。
+- 可迭代对象可以用在for循环，以及所有需要sequence类型的地方（比如zip(), map()...）。
+- 将iterable作为参数传给build-in函数iter()时，返回值为该iterable的迭代器（iterator）。
+- 但是我们一般不通过iter()使用iterable，而是通过for循环自动获取iterable中的每一个元素。
+
+** iterator
+迭代器，an object representing a stream of data.
+- 如果重复调用这个对象的__next__()方法，会顺次返回这个数据流的元素；当这个数据流
+已经没有元素时继续调用__next__()方法时，则产生StopIteration异常。
+- 任何一个iterator对象必须含有__iter__()方法，言外之意，一个iterator必然也是
+iterable。__iter__()方法用来返回这个对象自身。
+
+** Example
+1. example1
+#+BEGIN_SRC python
+>>> from collections import Iterable
+>>> isinstance([], Iterable)
+True
+>>> isinstance({}, Iterable)
+True
+>>> isinstance('abc', Iterable)
+True
+>>> isinstance(100, Iterable)
+False
+>>>
+#+END_SRC
+如上，列表、字段、字符串生成的对象都是可迭代对象；因为他们的类中都定义了__iter__()或者getitem()方法。
+
+2. example2
+#+BEGIN_SRC python
+>>> from collections import Iterator
+>>> isinstance([],Iterator)
+False
+>>> isinstance({},Iterator)
+False
+>>> isinstance('abc',Iterator)
+False
+>>> isinstance(iter([]),Iterator)
+True
+>>> isinstance(iter('abc'),Iterator)
+True
+#+END_SRC
+如上，list、dict、str对象不是iterator，但是其作为内置函数iter()的参数调用后的返回值是iterator。
+
+3. example3
+#+BEGIN_SRC python
+## Part1
+for i in [1, 2, 3]
+    print i
+
+## part2
+it = iter([1, 2, 3])
+while True:
+    try:
+        print next(it)
+    except StopIteration
+        break
+#+END_SRC
+或许这个程序更能说明迭代器与可迭代对象的区别：上面代码中Part1与Part2两部分本质是含义完全相同。
+
+** itertools模块
+既然提到了“迭代”相关的概念，最好顺便提一下python官方库itertools模块。
+参考某些语言的设计，该模块定义了一些用来生成迭代器（iterator）的类/函数;这些函数或者类返回一个迭代器，可用for循环进行遍历。
+在部分场景下增强python的表达能力及运行效率。参考：[[https://docs.python.org/3/library/itertools.html][itertools官方文档]] 、 [[http://funhacks.net/2017/02/13/itertools/][某博友写的中文示例]] 。
+
+* 列表推导式（list comprehension）
+列表推导式是生成列表的一种简单方式。它通过处理列表中的所有或者一部分元素后，然后再返回一个列表。例如：
+#+BEGIN_SRC python
+# 将0~256中所有的偶数提取出来，并将其按照16进制格式依次排列成一个list
+result = ["0x%02x" % x for x in range(256) if x % 2 == 0]
+#+END_SRC
+其书写方式是通过[]扩起来，第一部分是新生成的元素格式，第二部分是对旧的list遍历以及对元素进行条件判断。
+* sequence
+Defination:
+- An iterable which supports efficient element access using integer indices via the __getitem__() special method \
+and defines a len() method that returns the length of the sequence.
+- sequence本质是一个可迭代对象（iterable），并且支持使用“整数”索引元素(通过__getitem__()实现)和支持len()函数。
+- python内置了一些sequence类型，比如list、tuple、str、unicode
+
+* 生成器表达式（generator expression）
+生成器表达式形式基本与list comprehension一致，区别在于其使用圆括号括起来，而不是方括号。这类表达式往往应用于函数的参数，而这个函数恰恰需要一个生成器对象。
+#+BEGIN_SRC python
+>>> sum(i*i for i in range(10))
+285
+>>> xvec = [10, 20, 30]
+>>> yvec = [7, 5, 3]
+>>> sum(x*y for x,y in zip(xvec, yvec))
+260
+#+END_SRC
+
+* 生成器（generator）
+A function which returns an iterator. It looks like a normal function except that it contains yield statements \
+for producing a series of values usable in a for-loop or that can be retrieved one at a time with the next() function.
+generator本质是一个return 迭代器对象的函数，与其他函数区别在于：它没有return语句，而是使用yield语句来返回一系列的value。
+注：
+- 我们之前说过一个迭代器（iterator）必须包含__next__()和__iter__() method；当调用yield 语句时，生成器生成的迭代器对象自动含有这两个函数。
+- yield语句只能用于定义一个生成器,且只能在generator function的函数体内使用。
+- When a generator function is called, it returns an iterator known as a generator iterator, or more commonly, a generator。
+
+* 上下文管理器
+** 介绍
+又是python中一个很难懂的概念；从C系过来的人伤不起。不过理解它对写出pythonic的代码具有很大的帮助。
+首先操作系统中我们都了解过“进程上下文”的概念：指的是一个进程在运行时说占用的cpu（寄存器值等）、memory（堆栈）的环境信息。
+当切换进程时，我们需要保存当前被切换进程的“环境信息”（进程上下文）。
+python中的上下文管理器，也正是这个含义。只不过其管理的是python中的对象占用的资源。管理方法就是：“进入”（enter）和“离开”（exit）该对象时，上下文管理器自动为你进行资源管理。
+Context managers are normally invoked using the with statement (described in section The with statement), but can also be used by directly invoking their methods.
+上下文管理器通常使用*with语句*来触发，不过也可以直接调用与它相关的method。
+
+** 上下文管理器概念[fn:2]
+将迭代器时我们提到“迭代器协议”，即遵从迭代器协议的对象称之为迭代器。此处同理：遵从“上下文管理器协议”的对象称之为“上下文管理器”。
+上下文管理器协议为: 如果一个对象含有__enter__(self)、__exit(self, exc_type, exc_value, traceback)两个method，则这样的对象称之为“上下文管理器”。
+
+用户通过with语句使用该对象时，会自动调起__enter__ 方法;并且with会将其返回值赋值给as标记的name。
+- 用户可以在此写一些资源占用的工作，比如文件打开。
+而当with语句内的操作序列完成后，自动调起__exit__方法。
+- 用户可以在此做一些资源释放的工作，比如文件关闭。
+- 如果没有异常发生，__exit__内的参数值都是None；如果有异常，并且期望抑制异常向上抛出至with之外, 则该method需要return一个True值。
+** with语句的执行过程
+官网文档写的很详细，不在赘述：[[https://docs.python.org/3.6/reference/compound_stmts.html#with][复合语句with]]
+** contextlib 模块[fn:3]
+除了通过在对象中定义__enter__()和__exit__()方法来实现上下文管理器，还可以通过contextlib模块+生成器实现一个上下文管理器。
+contextlib 模块提供了三个对象：装饰器 contextmanager、函数 nested 和上下文管理器 closing。其中，contextmanager 是一个装饰器，用于装饰生成器函数，并返回一个上下文管理器。
+需要注意的是，被装饰的生成器函数只能产生一个值，否则会产生 RuntimeError 异常。
+#+BEGIN_SRC python
+from contextlib import contextmanager
+
+@contextmanager
+def point(x, y):
+    print 'before yield'
+    yield x * x + y * y
+    print 'after yield'
+
+with point(3, 4) as value:
+    print 'value is: %s' % value
+
+# output
+before yield
+value is: 25
+after yield
+#+END_SRC
+注：
+- 没有了__exit__和__enter__函数，相应的申请资源和释放资源分别放到了yield之前和yield之后。
+
+* 装饰器
+A function returning another function, usually applied as a function transformation using the @wrapper syntax.
+装饰器本身是一个函数，其返回值也是一个函数；通常装饰器通过@functool.wrapper语法进行定义。
+举例内容参见[[./20171101-python-functional-programming.org][python函数式编程]]。
+在类中比较常见的装饰器有@staticmethod @classmethod @property.
+
+* Footnotes
+
+[fn:1] [[https://docs.python.org/3/glossary.html#iterable][Python Glossary]]
+[fn:2] [[https://docs.python.org/3.6/reference/datamodel.html#context-managers][context-manager官网介绍]]
+[fn:3] [[https://github.com/ethan-funny/explore-python/blob/master/Advanced-Features/context.md][contextlib模块（explore python）]]

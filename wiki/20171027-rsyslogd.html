@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>syslog、syslog-ng、rsyslog</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">syslog、syslog-ng、rsyslog</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgc395c85">1. preface</a></li>
+<li><a href="#orgff10a58">2. syslog、syslog-ng、rsyslog</a></li>
+<li><a href="#org03eaa39">3. syslog</a></li>
+<li><a href="#org3462cbd">4. syslog-ng</a></li>
+<li><a href="#org6489f34">5. rsyslog</a></li>
+<li><a href="#org0ec781f">6. rsyslog配置</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgc395c85" class="outline-2">
+<h2 id="orgc395c85"><span class="section-number-2">1</span> preface</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+操作系统（专指*nix）需要日志服务软件记录操作系统的运行日志（比如用户登录信息/var/log/secure、mail信息/var/log/mail、kernel信息/var/log/kern.log等）；为了实现这一功能操作系统需要一款系统级别的日志服务软件。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgff10a58" class="outline-2">
+<h2 id="orgff10a58"><span class="section-number-2">2</span> syslog、syslog-ng、rsyslog</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+这是为了解决preface中所说的同一个问题而出现的三款不同软件。
+这三款软件输入源氛围三种：
+</p>
+<ol class="org-ol">
+<li>kernel (like kern.log)</li>
+<li>application in userspace (like mail.log )</li>
+<li>network ( by udp port 514)</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org03eaa39" class="outline-2">
+<h2 id="org03eaa39"><span class="section-number-2">3</span> syslog<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup></h2>
+<div class="outline-text-2" id="text-3">
+<p>
+最早出现的日志服务软件，与1980s被 Eric Allman虽Sendmail一起开发。
+随着该应用逐渐推广开来，syslog基本算是一个事实上的标准，但是没有一个统一的标准，并且存在不少不兼容的实现。后来IETF指定了几份关于syslog protocol的规范才算尘埃落定。
+syslog当把网络作为输入源时仅支持udp协议（默认514端口）
+随着操作系统的发展，syslog从功能、性能跟不上时代发展，于是有了后面两个独立的项目。
+当前macos、freebsd依然使用syslog；CentOS在版本6之前使用它，版本后6之后使用rsyslogd。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3462cbd" class="outline-2">
+<h2 id="org3462cbd"><span class="section-number-2">4</span> syslog-ng<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup></h2>
+<div class="outline-text-2" id="text-4">
+<p>
+类似于syslog的一款开源软件, 1998年开始开发。
+其使用标准的BSD syslog protocol。其由一家公司开发，版权类似于Qt分为两种：一种是LGPL协议下的开源版本，一个是专利下的版本（含有一些附加功能）。
+在syslog基础上，其支持TCP、TLS加密等特性
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6489f34" class="outline-2">
+<h2 id="org6489f34"><span class="section-number-2">5</span> rsyslog<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup></h2>
+<div class="outline-text-2" id="text-5">
+<p>
+同上，rsyslog出现于2004年，其实现了标准的BSD syslog protocal，是一款运行雨Unix&amp;Unix-like系统上的开源软件。相比syslog，其增加了内容过滤、TCP传输、灵活的配置、RELP协议支持等功能。
+当前CentOS、Debian系等大部分Linux发行版使用rsyslogd来提供日志服务；估计是三款中应用最广泛的。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0ec781f" class="outline-2">
+<h2 id="org0ec781f"><span class="section-number-2">6</span> rsyslog配置</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+建议先阅读 rsyslog、 syslogd.conf的man手册。其次官方网站<sup><a id="fnr.4" class="footref" href="#fn.4">4</a></sup>guides和document。
+搜到一篇博文<a href="http://blog.clanzx.net/2013/12/31/rsyslog.html">某位网友写的rsyslog配置简介（中文）</a> 写的也很详细。
+</p>
+
+
+
+<p>
+下面粘贴个人用到的例子：#开头的行为注释行，首先定义一个log模板，后续两行根据匹配规则将文件打印至不同的路径。
+#+BGEIN<sub>SRC</sub> text
+#define manager-server log format and log file
+$template LogFormat, "%rawmsg:5:$%\n"
+if ($msg contains ' manager-server ') then  /home/work/log/managerserver/managerser.log;LogFormat
+if ($msg contains ' manager-server ' and $syslogseverity &lt;= 4) then /home/work/log/managerserver/managerser<sub>err.log</sub>;LogFormat
+:msg, contains, " manager-server " ~
+#+END<sub>SRC</sub>
+</p>
+
+<p>
+注：
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://en.wikipedia.org/wiki/Syslog">Syslog wiki</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://en.wikipedia.org/wiki/Syslog-ng">syslog-ng wiki</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://en.wikipedia.org/wiki/Rsyslog">rsyslog wiki</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4">4</a></sup> <div class="footpara"><p class="footpara">
+<a href="http://www.rsyslog.com/">rsyslog官网</a>
+</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Python术语精解</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Python术语精解</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb7cea15">1. iteration、iterable、iterator</a>
+<ul>
+<li><a href="#orgb4ae27c">1.1. iteration</a></li>
+<li><a href="#orgdf80208">1.2. iterable</a></li>
+<li><a href="#org7d2e50b">1.3. iterator</a></li>
+<li><a href="#orgd32807d">1.4. Example</a></li>
+<li><a href="#orgb4f51d1">1.5. itertools模块</a></li>
+</ul>
+</li>
+<li><a href="#org9956740">2. 列表推导式（list comprehension）</a></li>
+<li><a href="#orge321b68">3. sequence</a></li>
+<li><a href="#org802b367">4. 生成器表达式（generator expression）</a></li>
+<li><a href="#orge7b36bd">5. 生成器（generator）</a></li>
+<li><a href="#org86cc49d">6. 上下文管理器</a>
+<ul>
+<li><a href="#orgfb5ef00">6.1. 介绍</a></li>
+<li><a href="#org4d657b4">6.2. 上下文管理器概念</a></li>
+<li><a href="#org03d9787">6.3. with语句的执行过程</a></li>
+<li><a href="#orgef0265a">6.4. contextlib 模块</a></li>
+</ul>
+</li>
+<li><a href="#org2880bc5">7. 装饰器</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb7cea15" class="outline-2">
+<h2 id="orgb7cea15"><span class="section-number-2">1</span> iteration、iterable、iterator</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Python支持在容器类型基础上支持“迭代”的概念；这个概念是建立在两个独立的函数基础
+之上；如果用户想让自己定义的class支持iteration，需要在类中定义相关的函数。
+</p>
+<ul class="org-ul">
+<li>如果容器（container）类型要支持iteration，需要在容器类中定义 _<sub>iter</sub>_<sub>()</sub>函数。</li>
+<li>如果一个类作为迭代器类型使用，则需要在迭代器类中同时定义_<sub>iter</sub>_<sub>()</sub>和 _<sub>next</sub>_<sub>()</sub>。</li>
+</ul>
+<p>
+注：只要在类中定义了_<sub>iter</sub>_<sub>()</sub>，该类生成的对象都可以应用于for、in语句。
+</p>
+</div>
+
+<div id="outline-container-orgb4ae27c" class="outline-3">
+<h3 id="orgb4ae27c"><span class="section-number-3">1.1</span> iteration</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+含义“迭代、迭代过程”。
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #b9ca4a;">for</span> item <span style="color: #b9ca4a;">in</span> <span style="color: #eaeaea;">[</span>1, 2, 3<span style="color: #eaeaea;">]</span>
+    <span style="color: #b9ca4a;">print</span> item
+</pre>
+</div>
+<p>
+如上，通过for遍历list[1, 2, 3]的过程称之为iteration。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgdf80208" class="outline-3">
+<h3 id="orgdf80208"><span class="section-number-3">1.2</span> iterable<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup></h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+可迭代对象，这种对象（object）能够一次返回它的一个成员（member）。比如list、str、
+tuple、dict类型对象都是可迭代对象（iterable）。其实只要一个类（Class）定义了
+_<sub>item</sub>_<sub>()</sub>方法或者_<sub>getitem</sub>_<sub>()</sub>方法，其生成的对象就是可迭代对象。
+</p>
+<ul class="org-ul">
+<li>可迭代对象可以用在for循环，以及所有需要sequence类型的地方（比如zip(), map()&#x2026;）。</li>
+<li>将iterable作为参数传给build-in函数iter()时，返回值为该iterable的迭代器（iterator）。</li>
+<li>但是我们一般不通过iter()使用iterable，而是通过for循环自动获取iterable中的每一个元素。</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org7d2e50b" class="outline-3">
+<h3 id="org7d2e50b"><span class="section-number-3">1.3</span> iterator</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+迭代器，an object representing a stream of data.
+</p>
+<ul class="org-ul">
+<li>如果重复调用这个对象的_<sub>next</sub>_<sub>()</sub>方法，会顺次返回这个数据流的元素；当这个数据流</li>
+</ul>
+<p>
+已经没有元素时继续调用_<sub>next</sub>_<sub>()</sub>方法时，则产生StopIteration异常。
+</p>
+<ul class="org-ul">
+<li>任何一个iterator对象必须含有_<sub>iter</sub>_<sub>()</sub>方法，言外之意，一个iterator必然也是</li>
+</ul>
+<p>
+iterable。_<sub>iter</sub>_<sub>()</sub>方法用来返回这个对象自身。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd32807d" class="outline-3">
+<h3 id="orgd32807d"><span class="section-number-3">1.4</span> Example</h3>
+<div class="outline-text-3" id="text-1-4">
+<ol class="org-ol">
+<li>example1</li>
+</ol>
+<div class="org-src-container">
+<pre class="src src-python">&gt;&gt;&gt; <span style="color: #b9ca4a;">from</span> collections <span style="color: #b9ca4a;">import</span> Iterable
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">[]</span>, Iterable<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">True</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">{}</span>, Iterable<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">True</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">'abc'</span>, Iterable<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">True</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span>100, Iterable<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">False</span>
+&gt;&gt;&gt;
+</pre>
+</div>
+<p>
+如上，列表、字段、字符串生成的对象都是可迭代对象；因为他们的类中都定义了_<sub>iter</sub>_<sub>()</sub>或者getitem()方法。
+</p>
+
+<ol class="org-ol">
+<li>example2</li>
+</ol>
+<div class="org-src-container">
+<pre class="src src-python">&gt;&gt;&gt; <span style="color: #b9ca4a;">from</span> collections <span style="color: #b9ca4a;">import</span> Iterator
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">[]</span>,Iterator<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">False</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">{}</span>,Iterator<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">False</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">'abc'</span>,Iterator<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">False</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #c397d8;">iter</span><span style="color: #70c0b1;">(</span><span style="color: #e7c547;">[]</span><span style="color: #70c0b1;">)</span>,Iterator<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">True</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">isinstance</span><span style="color: #eaeaea;">(</span><span style="color: #c397d8;">iter</span><span style="color: #70c0b1;">(</span><span style="color: #70c0b1;">'abc'</span><span style="color: #70c0b1;">)</span>,Iterator<span style="color: #eaeaea;">)</span>
+<span style="color: #7aa6da;">True</span>
+</pre>
+</div>
+<p>
+如上，list、dict、str对象不是iterator，但是其作为内置函数iter()的参数调用后的返回值是iterator。
+</p>
+
+<ol class="org-ol">
+<li>example3</li>
+</ol>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #969896; font-style: italic;">## </span><span style="color: #969896; font-style: italic;">Part1</span>
+<span style="color: #b9ca4a;">for</span> i <span style="color: #b9ca4a;">in</span> <span style="color: #eaeaea;">[</span>1, 2, 3<span style="color: #eaeaea;">]</span>
+    <span style="color: #b9ca4a;">print</span> i
+
+<span style="color: #969896; font-style: italic;">## </span><span style="color: #969896; font-style: italic;">part2</span>
+<span style="color: #e7c547;">it</span> = <span style="color: #c397d8;">iter</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">[</span>1, 2, 3<span style="color: #70c0b1;">]</span><span style="color: #eaeaea;">)</span>
+<span style="color: #b9ca4a;">while</span> <span style="color: #7aa6da;">True</span>:
+    <span style="color: #b9ca4a;">try</span>:
+        <span style="color: #b9ca4a;">print</span> <span style="color: #c397d8;">next</span><span style="color: #eaeaea;">(</span>it<span style="color: #eaeaea;">)</span>
+    <span style="color: #b9ca4a;">except</span> <span style="color: #7aa6da;">StopIteration</span>
+        <span style="color: #b9ca4a;">break</span>
+</pre>
+</div>
+<p>
+或许这个程序更能说明迭代器与可迭代对象的区别：上面代码中Part1与Part2两部分本质是含义完全相同。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb4f51d1" class="outline-3">
+<h3 id="orgb4f51d1"><span class="section-number-3">1.5</span> itertools模块</h3>
+<div class="outline-text-3" id="text-1-5">
+<p>
+既然提到了“迭代”相关的概念，最好顺便提一下python官方库itertools模块。
+参考某些语言的设计，该模块定义了一些用来生成迭代器（iterator）的类/函数;这些函数或者类返回一个迭代器，可用for循环进行遍历。
+在部分场景下增强python的表达能力及运行效率。参考：<a href="https://docs.python.org/3/library/itertools.html">itertools官方文档</a> 、 <a href="http://funhacks.net/2017/02/13/itertools/">某博友写的中文示例</a> 。
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9956740" class="outline-2">
+<h2 id="org9956740"><span class="section-number-2">2</span> 列表推导式（list comprehension）</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+列表推导式是生成列表的一种简单方式。它通过处理列表中的所有或者一部分元素后，然后再返回一个列表。例如：
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">&#23558;0~256&#20013;&#25152;&#26377;&#30340;&#20598;&#25968;&#25552;&#21462;&#20986;&#26469;&#65292;&#24182;&#23558;&#20854;&#25353;&#29031;16&#36827;&#21046;&#26684;&#24335;&#20381;&#27425;&#25490;&#21015;&#25104;&#19968;&#20010;list</span>
+<span style="color: #e7c547;">result</span> = <span style="color: #eaeaea;">[</span><span style="color: #70c0b1;">"0x%02x"</span> % x <span style="color: #b9ca4a;">for</span> x <span style="color: #b9ca4a;">in</span> <span style="color: #c397d8;">range</span><span style="color: #70c0b1;">(</span>256<span style="color: #70c0b1;">)</span> <span style="color: #b9ca4a;">if</span> x % 2 == 0<span style="color: #eaeaea;">]</span>
+</pre>
+</div>
+<p>
+其书写方式是通过[]扩起来，第一部分是新生成的元素格式，第二部分是对旧的list遍历以及对元素进行条件判断。
+</p>
+</div>
+</div>
+<div id="outline-container-orge321b68" class="outline-2">
+<h2 id="orge321b68"><span class="section-number-2">3</span> sequence</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Defination:
+</p>
+<ul class="org-ul">
+<li>An iterable which supports efficient element access using integer indices via the _<sub>getitem</sub>_<sub>()</sub> special method \</li>
+</ul>
+<p>
+and defines a len() method that returns the length of the sequence.
+</p>
+<ul class="org-ul">
+<li>sequence本质是一个可迭代对象（iterable），并且支持使用“整数”索引元素(通过_<sub>getitem</sub>_<sub>()</sub>实现)和支持len()函数。</li>
+<li>python内置了一些sequence类型，比如list、tuple、str、unicode</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org802b367" class="outline-2">
+<h2 id="org802b367"><span class="section-number-2">4</span> 生成器表达式（generator expression）</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+生成器表达式形式基本与list comprehension一致，区别在于其使用圆括号括起来，而不是方括号。这类表达式往往应用于函数的参数，而这个函数恰恰需要一个生成器对象。
+</p>
+<div class="org-src-container">
+<pre class="src src-python">&gt;&gt;&gt; <span style="color: #c397d8;">sum</span><span style="color: #eaeaea;">(</span>i*i <span style="color: #b9ca4a;">for</span> i <span style="color: #b9ca4a;">in</span> <span style="color: #c397d8;">range</span><span style="color: #70c0b1;">(</span>10<span style="color: #70c0b1;">)</span><span style="color: #eaeaea;">)</span>
+285
+&gt;&gt;&gt; <span style="color: #e7c547;">xvec</span> = <span style="color: #eaeaea;">[</span>10, 20, 30<span style="color: #eaeaea;">]</span>
+&gt;&gt;&gt; <span style="color: #e7c547;">yvec</span> = <span style="color: #eaeaea;">[</span>7, 5, 3<span style="color: #eaeaea;">]</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">sum</span><span style="color: #eaeaea;">(</span>x*y <span style="color: #b9ca4a;">for</span> x,y <span style="color: #b9ca4a;">in</span> <span style="color: #c397d8;">zip</span><span style="color: #70c0b1;">(</span>xvec, yvec<span style="color: #70c0b1;">)</span><span style="color: #eaeaea;">)</span>
+260
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge7b36bd" class="outline-2">
+<h2 id="orge7b36bd"><span class="section-number-2">5</span> 生成器（generator）</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+A function which returns an iterator. It looks like a normal function except that it contains yield statements \
+for producing a series of values usable in a for-loop or that can be retrieved one at a time with the next() function.
+generator本质是一个return 迭代器对象的函数，与其他函数区别在于：它没有return语句，而是使用yield语句来返回一系列的value。
+注：
+</p>
+<ul class="org-ul">
+<li>我们之前说过一个迭代器（iterator）必须包含_<sub>next</sub>_<sub>()</sub>和_<sub>iter</sub>_<sub>()</sub> method；当调用yield 语句时，生成器生成的迭代器对象自动含有这两个函数。</li>
+<li>yield语句只能用于定义一个生成器,且只能在generator function的函数体内使用。</li>
+<li>When a generator function is called, it returns an iterator known as a generator iterator, or more commonly, a generator。</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org86cc49d" class="outline-2">
+<h2 id="org86cc49d"><span class="section-number-2">6</span> 上下文管理器</h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-orgfb5ef00" class="outline-3">
+<h3 id="orgfb5ef00"><span class="section-number-3">6.1</span> 介绍</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+又是python中一个很难懂的概念；从C系过来的人伤不起。不过理解它对写出pythonic的代码具有很大的帮助。
+首先操作系统中我们都了解过“进程上下文”的概念：指的是一个进程在运行时说占用的cpu（寄存器值等）、memory（堆栈）的环境信息。
+当切换进程时，我们需要保存当前被切换进程的“环境信息”（进程上下文）。
+python中的上下文管理器，也正是这个含义。只不过其管理的是python中的对象占用的资源。管理方法就是：“进入”（enter）和“离开”（exit）该对象时，上下文管理器自动为你进行资源管理。
+Context managers are normally invoked using the with statement (described in section The with statement), but can also be used by directly invoking their methods.
+上下文管理器通常使用*with语句*来触发，不过也可以直接调用与它相关的method。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4d657b4" class="outline-3">
+<h3 id="org4d657b4"><span class="section-number-3">6.2</span> 上下文管理器概念<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup></h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+将迭代器时我们提到“迭代器协议”，即遵从迭代器协议的对象称之为迭代器。此处同理：遵从“上下文管理器协议”的对象称之为“上下文管理器”。
+上下文管理器协议为: 如果一个对象含有_<sub>enter</sub>_<sub>(self)</sub>、_<sub>exit</sub>(self, exc<sub>type</sub>, exc<sub>value</sub>, traceback)两个method，则这样的对象称之为“上下文管理器”。
+</p>
+
+<p>
+用户通过with语句使用该对象时，会自动调起_<sub>enter</sub>__ 方法;并且with会将其返回值赋值给as标记的name。
+</p>
+<ul class="org-ul">
+<li>用户可以在此写一些资源占用的工作，比如文件打开。</li>
+</ul>
+<p>
+而当with语句内的操作序列完成后，自动调起_<sub>exit</sub>_<sub>方法</sub>。
+</p>
+<ul class="org-ul">
+<li>用户可以在此做一些资源释放的工作，比如文件关闭。</li>
+<li>如果没有异常发生，_<sub>exit</sub>_<sub>内的参数值都是None</sub>；如果有异常，并且期望抑制异常向上抛出至with之外, 则该method需要return一个True值。</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org03d9787" class="outline-3">
+<h3 id="org03d9787"><span class="section-number-3">6.3</span> with语句的执行过程</h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+官网文档写的很详细，不在赘述：<a href="https://docs.python.org/3.6/reference/compound_stmts.html#with">复合语句with</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgef0265a" class="outline-3">
+<h3 id="orgef0265a"><span class="section-number-3">6.4</span> contextlib 模块<sup><a id="fnr.3" class="footref" href="#fn.3">3</a></sup></h3>
+<div class="outline-text-3" id="text-6-4">
+<p>
+除了通过在对象中定义_<sub>enter</sub>_<sub>()</sub>和_<sub>exit</sub>_<sub>()</sub>方法来实现上下文管理器，还可以通过contextlib模块+生成器实现一个上下文管理器。
+contextlib 模块提供了三个对象：装饰器 contextmanager、函数 nested 和上下文管理器 closing。其中，contextmanager 是一个装饰器，用于装饰生成器函数，并返回一个上下文管理器。
+需要注意的是，被装饰的生成器函数只能产生一个值，否则会产生 RuntimeError 异常。
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #b9ca4a;">from</span> contextlib <span style="color: #b9ca4a;">import</span> contextmanager
+
+<span style="color: #7aa6da;">@contextmanager</span>
+<span style="color: #b9ca4a;">def</span> <span style="color: #e78c45;">point</span><span style="color: #eaeaea;">(</span>x, y<span style="color: #eaeaea;">)</span>:
+    <span style="color: #b9ca4a;">print</span> <span style="color: #70c0b1;">'before yield'</span>
+    <span style="color: #b9ca4a;">yield</span> x * x + y * y
+    <span style="color: #b9ca4a;">print</span> <span style="color: #70c0b1;">'after yield'</span>
+
+<span style="color: #b9ca4a;">with</span> point<span style="color: #eaeaea;">(</span>3, 4<span style="color: #eaeaea;">)</span> <span style="color: #b9ca4a;">as</span> value:
+    <span style="color: #b9ca4a;">print</span> <span style="color: #70c0b1;">'value is: %s'</span> % value
+
+<span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">output</span>
+before <span style="color: #b9ca4a;">yield</span>
+value <span style="color: #b9ca4a;">is</span>: 25
+after <span style="color: #b9ca4a;">yield</span>
+</pre>
+</div>
+<p>
+注：
+</p>
+<ul class="org-ul">
+<li>没有了_<sub>exit</sub>_<sub>和</sub>_<sub>enter</sub>_<sub>函数</sub>，相应的申请资源和释放资源分别放到了yield之前和yield之后。</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2880bc5" class="outline-2">
+<h2 id="org2880bc5"><span class="section-number-2">7</span> 装饰器</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+A function returning another function, usually applied as a function transformation using the @wrapper syntax.
+装饰器本身是一个函数，其返回值也是一个函数；通常装饰器通过@functool.wrapper语法进行定义。
+举例内容参见<a href="./20171101-python-functional-programming.html">python函数式编程</a>。
+在类中比较常见的装饰器有@staticmethod @classmethod @property.
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://docs.python.org/3/glossary.html#iterable">Python Glossary</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://docs.python.org/3.6/reference/datamodel.html#context-managers">context-manager官网介绍</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3">3</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://github.com/ethan-funny/explore-python/blob/master/Advanced-Features/context.md">contextlib模块（explore python）</a>
+</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

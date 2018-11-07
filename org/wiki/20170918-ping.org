@@ -1,0 +1,61 @@
+#+TITLE:  ping
+
+|       DATE | modification |
+|------------+--------------|
+| 2017.09.12 | 初稿         |
+| 2017.09.25 | 增加ping of death && ping flood |
+
+
+* brief
+估计这是世界上最流程的网络应用程序了，无论windows、*nix都提供了这样的一个命令行工具。
+无论一个人是否学过计算机，只要经历过正儿八经的大学教育的人一旦百度打开不开，十之八九先想到这个程序。
+今天详细介绍一些ping的前世今生。
+
+* Introduction[fn:1]
+ping最开始是在1983年Mike Muuss撰写，被用于IP Network诊断问题诊断的一款工具。他的这个想法来源于David Mills提出的\
+一个想法:利用ICMP echo报文进行IP Network diagnosis and measurements. 而ping的命名也仿效声纳系统，类似于定位水中的某个目标。
+
+** ping主要有两方面的应用：
+1. 一般情况下，我们认为只要某个Host可以ping通，则认为该Host是active状态或者我们个人电脑网络是正常的。
+2. ping程序还记录了ICMP包的往返时间RTT（round-trip time ），用于衡量两个Host之间的网络距离。
+
+
+* The theory of ping[fn:2]
+我们先明确client和server的定义：我们将运行ping程序的一端为client，而接收ping程序发出的icmp echo request报文的机器为server。接收echo报文的server往往是实现在当前的tcp/ip协议栈中，即运行于kernel space；这于我们经常看到的运行于userspace空间的http server有较大的差别。
+
+ICMP echo报文如下所示。
+| type(8bits)        | code(8bits) | checksum(16bits)         |
+| identifier(16bits) |             | sequence number(16bits)  |
+| optional data                                               |
+ICMP server接收到 icmp echo request报文后，需要回复icmp echo reply报文；这一来一回中就可以判断两个属性：远方Host是否ping通，远方Host的RTT是多少。
+icmp sever必须回显identifier、sequnence  number和optional data。在Unix ping实现中，identifier用来存放进程的PID，这可以在多个ping程序运行于同一个client的情况下，不同的ping程序区分哪些echo reply是自身发出的。
+sequece number默认是从0开始计数，以1为步进；这样当某个ping包丢失（或者echo request，或者echo reply）时，我们可以察觉到。毕竟IP Network是一个“尽力而为”的网络。
+
+从上面我们看不出关于timestamp的字段呢，ping是如何实现RTT的计数呢？
+答案在optinal字段，每一个发出去的icmp echo request报文中的optional字段含有发出时刻的timestamp。由于icmp server必须回显optonal data，当icmp echo reply回到client时，client利用当前时间减去reply报文中的timestamp，既获取RTT。
+
+历史原因，ping程序默认每隔1s发出一个echo request报文（无论echo reply是否到达)。在低俗网络下，如果通过CTRL+C中止ping程序的话，可能发出去的echo request还没有来得及回包从而最后一个或多个reply报文丢失，从而产生丢包率。
+
+
+* Applications of Ping
+** ping of death
+本质上ping of death是一种操作系统攻击手段。在上个世纪网络协议栈还没有足够的优化和存在较多bug的情况下，这种攻击具有现实意义；但在几乎所有的操作系统都增加了patch进行了修复；当前几乎不在具备现实意义（除了依然运行上个世纪老的操作系统）。
+其基本原理是：IPV4数据包长度最大为65535bytes，如果源端制造大于该64435bytes的报文，如果end system不能识别这类报文，导致本身系统buffer overflow，从而系统crash甚至允许恶意代码注入。
+- [[https://web.archive.org/web/19981206105844/http://www.sophist.demon.co.uk/ping/][可被攻击的操作系统List]]
+** ping flood
+ping flood 是一种DOS（denial-of-service attack）攻击方式，其攻击原理是：客户端发送大量的echo request报文，导致end system远端带宽不足或者系统资源不足，导致无法处理正常请求。
+这类攻击往往没有很好的防止方法，要不将所有的echo request包不在接收直接丢弃；要么只能使用更多的资源硬抗。
+
+* The Command of Ping（Linux）
+Linux ping有很有用的参数：
+- c ：指定发送多少次echo request 包
+- f : flood mode, 向目的地址发起ping flood
+- i : 默认情况，每隔1s发送一次echo request报文；这个参数可以修改间隔期。
+- W : 设置echo request 报文的等待reply的timeout。
+
+
+* Footnotes
+
+[fn:1] The link is : https://en.wikipedia.org/wiki/Ping_(networking_utility)
+
+[fn:2] tcp/ip illustrated: volume 1

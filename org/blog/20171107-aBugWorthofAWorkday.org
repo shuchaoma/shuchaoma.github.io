@@ -1,0 +1,53 @@
+#+Title: 价值一个工作日的BUG
+#+Date: 20171106
+
+* 背景描述
+因为项目需要，一个模块（称之为模块A）的交互协议发生了变化，从而与其交互的模块（称为模块B）需要进行协议适配改造。
+模块A设计的交互协议通过二进制传输，格式也很简答，其中第一部分为prefix:
+| version | mode   | length | size   |
+|---------+--------+--------+--------|
+| uint32  | uint32 | uint32 | uint32 |
+
+前期没有考虑到第四个字段size空间不足情况，协议v2需要将第四个字段从int32类型改为int64。
+
+* 问题描述
+模块B使用python撰写；众说周知python对二进制的处理（尤其网络交互、文件解析方面）通过struct模块进行包装（pack）与（unpack）。
+当初错误的修改方案是：直接修改struct.pack()中的fmt，没有考虑C语言（编译器）需要的结构体对齐的因素。
+注：内存对齐理论参考 [[http://www.cnblogs.com/motadou/archive/2009/01/17/1558438.html][结构体对其详解]]
+#+BEGIN_SRC python
+修改前示例：
+lst = (1, 2, 3, 4)
+data = struct.pack("4I", *lst)
+修改后示例：
+lst = (1, 2, 3, 4)
+data = struct.pack("3IQ", *lst)
+#+END_SRC
+
+* 原因分析
+个人系统64bit Linux，python默认情况安装系统8字节对齐，直接导致该结构体生成的二进制流并非预期的20字节，而是多出四个字节-24字节，从而模块A无法识别。如下图：
+| 内存地址向下增长 | item    |
+|------------------+---------|
+| uint32           | mode    |
+| uint32           | version |
+| uint32           | length  |
+| null(填充)       | padding |
+| uint64           | size    |
+
+正确的方法应该是在pack函数的fmt中指定为“紧密排列”[fn:1]
+#+BEGIN_SRC python
+>>> import struct
+>>> lst=(1, 2, 3, 4)
+>>> data = struct.pack("4I", 1, 2, 3, 4)
+>>> struct.calcsize("4I")
+16
+>>> data = struct.pack("3IQ", 1, 2, 3, 4)
+>>> struct.calcsize("3IQ")
+24
+>>> data = struct.pack("=3IQ", 1, 2, 3, 4)
+>>> struct.calcsize("=3IQ")
+20
+#+END_SRC
+
+* Footnotes
+
+[fn:1] [[https://docs.python.org/2/library/struct.html#byte-order-size-and-alignment][python struct: byte-order-size-alignment]]

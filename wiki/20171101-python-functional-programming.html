@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Python函数式编程</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Python函数式编程</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org3c00a7f">1. 什么是函数式编程</a></li>
+<li><a href="#orgfef2494">2. python与函数式编程</a></li>
+<li><a href="#org8ff64e5">3. 高阶函数(High-order function)</a></li>
+<li><a href="#org9afcf1a">4. 匿名函数(anonymous function)</a></li>
+<li><a href="#orgb99390a">5. 装饰器(decorator)</a></li>
+<li><a href="#org5f05bc4">6. map、reduce、filter</a>
+<ul>
+<li><a href="#orga8d684b">6.1. map</a></li>
+<li><a href="#org872c405">6.2. reduce</a></li>
+<li><a href="#orgf399cab">6.3. filter</a></li>
+<li><a href="#org75f9863">6.4. Example python2.7</a></li>
+</ul>
+</li>
+<li><a href="#org462a9a0">7. 自带的几个module对functional programming提供支持</a>
+<ul>
+<li><a href="#org9325d14">7.1. itertools</a>
+<ul>
+<li><a href="#org2520e26">7.1.1. 无限迭代器</a></li>
+<li><a href="#org54ca448">7.1.2. 有限迭代器</a></li>
+<li><a href="#orgfffc38e">7.1.3. 组合迭代器</a></li>
+<li><a href="#orgd063a84">7.1.4. 具体用法参考如下：</a></li>
+</ul>
+</li>
+<li><a href="#org5a88101">7.2. functools</a></li>
+<li><a href="#orgfd05d44">7.3. operator</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org3c00a7f" class="outline-2">
+<h2 id="org3c00a7f"><span class="section-number-2">1</span> 什么是函数式编程</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+首先，这只是一种编程范式；即使不知道这个东东也不影响你写出好的程序。不过如果对此有一定的掌握，可以写出更加精简的语言。
+函数式编程相对过程式编程跟高阶一些，一般对此支持的语言执行效率方便相对低效一些。(不过C/C++通过函数指针可以模拟函数式编程)
+与面向过程编程对比：
+</p>
+<div class="org-src-container">
+<pre class="src src-python">&#38754;&#21521;&#36807;&#31243;&#24605;&#32500;&#20851;&#24515;&#35299;&#20915;&#38382;&#39064;&#30340;&#27493;&#39588;&#65307;&#20989;&#25968;&#24335;&#32534;&#31243;&#24605;&#32500;&#20851;&#24515;&#36755;&#20837;&#19982;&#36755;&#20986;&#20043;&#38388;&#30340;&#26144;&#23556;&#20851;&#31995;&#12290;
+</pre>
+</div>
+<p>
+注：想一想高中时候数学对函数的定义 ^_^ y=f(x)代表的是x与y的映射关系；而这个映射关系是通过表达式表示的。
+</p>
+
+<p>
+具体函数编程思维参考下面两篇文章：
+</p>
+<ul class="org-ul">
+<li><a href="https://www.zhihu.com/question/28292740">什么是函数式编程(知乎头两个回答挺不错)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Functional_programming">Functional programming(wiki)</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgfef2494" class="outline-2">
+<h2 id="orgfef2494"><span class="section-number-2">2</span> python与函数式编程</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+python并非天生是函数式编程语言；不过最为高阶语言对函数式编程提供了越来越多的支持。
+</p>
+<ul class="org-ul">
+<li>比如一切皆是对象的概念，函数名作为参数传递。</li>
+<li>比如匿名函数、装饰器的概念</li>
+<li>比如内置函数map、reduce、filter</li>
+<li>比如python基础库中的几个module：itertools、functools、operator</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org8ff64e5" class="outline-2">
+<h2 id="org8ff64e5"><span class="section-number-2">3</span> 高阶函数(High-order function)</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+首先我们应用wikipedia的概念：
+</p>
+<div class="org-src-container">
+<pre class="src src-text">In mathematics and computer science, a higher-order function (also functional, functional form or functor) is a function that does at least one of the following:
+- takes one or more functions as arguments.
+- returns a function as its result.
+</pre>
+</div>
+<p>
+回忆一下大学的高等数学,大家应该能有一点印象吧。
+python作为一种高度抽象的语言，举例：
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #b9ca4a;">def</span> <span style="color: #e78c45;">print_ele</span><span style="color: #eaeaea;">(</span>ele<span style="color: #eaeaea;">)</span>:
+    <span style="color: #b9ca4a;">print</span><span style="color: #eaeaea;">(</span><span style="color: #70c0b1;">"ele=%s\n"</span> % ele<span style="color: #eaeaea;">)</span>
+
+<span style="color: #b9ca4a;">def</span> <span style="color: #e78c45;">print_lst</span><span style="color: #eaeaea;">(</span>lst, func_handler<span style="color: #eaeaea;">)</span>:
+    <span style="color: #b9ca4a;">for</span> ele <span style="color: #b9ca4a;">in</span> lst:
+        func_handler<span style="color: #eaeaea;">(</span>ele<span style="color: #eaeaea;">)</span>
+
+<span style="color: #e7c547;">lst</span>=<span style="color: #eaeaea;">[</span><span style="color: #70c0b1;">"a"</span>, <span style="color: #70c0b1;">"b"</span>, <span style="color: #70c0b1;">"c"</span><span style="color: #eaeaea;">]</span>
+print_lst<span style="color: #eaeaea;">(</span>lst, print_ele<span style="color: #eaeaea;">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9afcf1a" class="outline-2">
+<h2 id="org9afcf1a"><span class="section-number-2">4</span> 匿名函数(anonymous function)</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+python的匿名函数其实就是lambda表达式，通过lambda表达式可以定义一个没有名字的函数，该表达式的返回值是fuction类型。定义形式如下：
+</p>
+<div class="org-src-container">
+<pre class="src src-text">lambda arguments: express
+</pre>
+</div>
+<p>
+举例如下：
+</p>
+<div class="org-src-container">
+<pre class="src src-text">&gt;&gt;&gt; x = lambda x: x*x
+&gt;&gt;&gt; type(x)
+&lt;type 'function'&gt;
+&gt;&gt;&gt; x(9)
+81
+</pre>
+</div>
+<p>
+注：
+</p>
+<ul class="org-ul">
+<li>lambda表达式或者其返回值可以用在任何函数所在的地方。（lambda表达式本身就是函数。）</li>
+<li>lambda表达式一般用于创建一些小巧的函数；尤其再高阶函数中应用较多。这个特性极大的增强了python的表达能力。</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb99390a" class="outline-2">
+<h2 id="orgb99390a"><span class="section-number-2">5</span> 装饰器(decorator)</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+这个概念自从接触python就一直很让令我纠结：真的是太她妈难懂呀！而且也没有发现有什么大的作用。
+现在看来，修饰器本质上就是一个高阶函数的“语法糖”用法，在不少场景下也能极大的增强python的表达能力。
+具体不在赘述，参考如下链接：
+</p>
+<ul class="org-ul">
+<li><a href="https://github.com/ethan-funny/explore-python/blob/master/Functional/decorator.md">装饰器</a></li>
+<li><a href="https://docs.python.org/3/reference/compound_stmts.html#function-definitions">python-function-definations</a></li>
+</ul>
+
+<p>
+需要理解几点是：
+</p>
+<ul class="org-ul">
+<li>装饰器（函数或者类）需要是callable的；对类而言，这要求其声明_<sub>call</sub>__ method。</li>
+<li>一个装饰器往往可以装饰很多函数，节省代码的同时增强表达力。同样修改装饰器本身，也会影响被装饰的函数的表现。</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5f05bc4" class="outline-2">
+<h2 id="org5f05bc4"><span class="section-number-2">6</span> map、reduce、filter</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+map、reduce、filter是python内置的高阶函数，其都需要函数作为他们的第一参数。
+</p>
+</div>
+
+<div id="outline-container-orga8d684b" class="outline-3">
+<h3 id="orga8d684b"><span class="section-number-3">6.1</span> map</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+函数使用形式如下：map(function, sequence) &#x2014;&gt;sequence
+含义：将function作用域sequence的每一个item，并且将返回值作为一个sequence返回。
+</p>
+</div>
+</div>
+<div id="outline-container-org872c405" class="outline-3">
+<h3 id="org872c405"><span class="section-number-3">6.2</span> reduce</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+函数使用形式如下：reduce(fuction, sequence [,initial]) &#x2014;&gt;value
+含义： 先将sequence的前两个item传给function，函数的返回值和sequence的下一个item再传给function，如此迭代，直到sequence
+没有元素。如果有initial，则作为初始值调用。其最终返回一个value。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf399cab" class="outline-3">
+<h3 id="orgf399cab"><span class="section-number-3">6.3</span> filter</h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+函数使用形式如下：filter(fucntion, sequence) &#x2013;&gt;sequence.
+含义：将function依次作用域sequence的每一个item，将返回值为Ture的item作为一个sequnce返回。
+</p>
+
+<p>
+注：
+</p>
+<ul class="org-ul">
+<li>在python2中 map、filter的返回值由第二个参数sequnce的类型而决定。</li>
+<li>在python3中，map、filter的返回值都是迭代器类型</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org75f9863" class="outline-3">
+<h3 id="org75f9863"><span class="section-number-3">6.4</span> Example python2.7</h3>
+<div class="outline-text-3" id="text-6-4">
+<div class="org-src-container">
+<pre class="src src-python">&gt;&gt;&gt; <span style="color: #e7c547;">lst</span>=<span style="color: #eaeaea;">[</span>1, 2, 3, 4, 5, 6, 7<span style="color: #eaeaea;">]</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">map</span><span style="color: #eaeaea;">(</span><span style="color: #b9ca4a;">lambda</span> x:x*2, lst<span style="color: #eaeaea;">)</span>
+<span style="color: #eaeaea;">[</span>2, 4, 6, 8, 10, 12, 14<span style="color: #eaeaea;">]</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">reduce</span><span style="color: #eaeaea;">(</span><span style="color: #b9ca4a;">lambda</span> x, y: x + y, lst<span style="color: #eaeaea;">)</span>
+28
+&gt;&gt;&gt; <span style="color: #c397d8;">filter</span><span style="color: #eaeaea;">(</span><span style="color: #b9ca4a;">lambda</span> x: x&gt;4, lst<span style="color: #eaeaea;">)</span>
+<span style="color: #eaeaea;">[</span>5, 6, 7<span style="color: #eaeaea;">]</span>
+&gt;&gt;&gt;
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org462a9a0" class="outline-2">
+<h2 id="org462a9a0"><span class="section-number-2">7</span> 自带的几个module对functional programming提供支持</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+python内置了一些模块专门支持函数式编程范式；目前设计的模块有itertools、functools、operator。
+比较常用的是前两个，尤其掌握可第一个会再部分场景下极大的提升编码效率（更少的字符、更强大的功能）
+</p>
+</div>
+<div id="outline-container-org9325d14" class="outline-3">
+<h3 id="org9325d14"><span class="section-number-3">7.1</span> itertools</h3>
+<div class="outline-text-3" id="text-7-1">
+<p>
+这个module主要受其他支持函数式编程的语言（如Haskell）激发而产生的;其定义了很多函数/类用来产生各种各样的迭代器。
+当然，它的效率是卓著的.
+其产生的迭代器可以分为三类：无限迭代器、有限迭代器、组合迭代器。
+</p>
+</div>
+<div id="outline-container-org2520e26" class="outline-4">
+<h4 id="org2520e26"><span class="section-number-4">7.1.1</span> 无限迭代器</h4>
+<div class="outline-text-4" id="text-7-1-1">
+<ol class="org-ol">
+<li>count(start [,step]) : 产生无限个数字， start, start+step, start+2*step&#x2026;</li>
+<li>cycle(iterable) : 循环输出iterable里面的元素。</li>
+<li>repeat(elem [,n]) ： 一直输出elem（如果有参数n的话，输出n次）</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org54ca448" class="outline-4">
+<h4 id="org54ca448"><span class="section-number-4">7.1.2</span> 有限迭代器</h4>
+<div class="outline-text-4" id="text-7-1-2">
+<ol class="org-ol">
+<li>chain(p, q, &#x2026;) &#x2013;&gt; p0, p1, &#x2026; plast, q0, q1, &#x2026;</li>
+<li>chain('ABC', 'DEF') &#x2013;&gt; A B C D E F</li>
+<li>compress(data, selectors) &#x2013;&gt; (d[0] if s[0]), (d[1] if s[1]), &#x2026;</li>
+<li>compress('ABCDEF', [1,0,1,0,1,1]) &#x2013;&gt; A C E F</li>
+<li>dropwhile(pred<sub>func</sub>, seq) &#x2013;&gt; seq[n], seq[n+1], starting when pred<sub>func</sub> fails</li>
+<li>dropwhile(lambda x: x&lt;5, [1,4,6,4,1]) &#x2013;&gt; 6 4 1</li>
+<li>groupby(iterable[, keyfunc]) &#x2013;&gt; create an iterator which returns (key, sub-iterator) grouped by each value of key(value).</li>
+<li>ifilter(pred, seq) &#x2013;&gt; elements of seq where pred(elem) is True</li>
+<li>ifilterfalse(pred, seq) &#x2013;&gt; elements of seq where pred(elem) is False</li>
+<li>islice(seq, [start,] stop [, step]) &#x2013;&gt; elements from seq[start:stop:step]</li>
+<li>starmap(fun, seq) &#x2013;&gt; fun(*seq[0]), fun(*seq[1]), &#x2026;</li>
+<li>tee(it, n=2) &#x2013;&gt; (it1, it2 , &#x2026; itn) splits one iterator into n</li>
+<li>takewhile(pred, seq) &#x2013;&gt; seq[0], seq[1], until pred fails</li>
+<li>izip(p, q, &#x2026;) &#x2013;&gt; (p[0], q[0]), (p[1], q[1]), &#x2026;</li>
+<li>izip 用于将多个可迭代对象对应位置的元素作为一个元组，将所有元组『组成』一个迭代器，并返回。</li>
+</ol>
+<p>
+izip<sub>longest</sub>(p, q, &#x2026;) &#x2013;&gt; (p[0], q[0]), (p[1], q[1]), &#x2026;
+</p>
+<ul class="org-ul">
+<li>跟izip相同，区别点在于当某个iterable元素不足时，会用None代替。</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgfffc38e" class="outline-4">
+<h4 id="orgfffc38e"><span class="section-number-4">7.1.3</span> 组合迭代器</h4>
+<div class="outline-text-4" id="text-7-1-3">
+<ol class="org-ol">
+<li>product(p, q, &#x2026; [repeat=1]) &#x2013;&gt; cartesian product (叉乘)</li>
+<li>permutations(p[, r]) : Return successive r-length permutations of elements in the iterable. (排列)</li>
+<li>permutations(range(3), 2) &#x2013;&gt; (0,1), (0,2), (1,0), (1,2), (2,0), (2,1)</li>
+<li>combinations(p, r): Return successive r-length combinations of elements in the iterable (组合)</li>
+<li>combinations<sub>with</sub><sub>replacement</sub> :</li>
+<li>Return successive r-length combinations of elements in the iterable, allowing individual elements to have successive repeats.</li>
+</ol>
+<p>
+与combinations区别在于允许自身作为一个组合。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd063a84" class="outline-4">
+<h4 id="orgd063a84"><span class="section-number-4">7.1.4</span> 具体用法参考如下：</h4>
+<div class="outline-text-4" id="text-7-1-4">
+<ul class="org-ul">
+<li>官方文档  <a href="https://docs.python.org/3/library/itertools.html">python-libraray-itertools</a></li>
+<li><a href="http://funhacks.net/2017/02/13/itertools/">高效的itertools模块（中文）</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5a88101" class="outline-3">
+<h3 id="org5a88101"><span class="section-number-3">7.2</span> functools</h3>
+<div class="outline-text-3" id="text-7-2">
+<p>
+待update。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgfd05d44" class="outline-3">
+<h3 id="orgfd05d44"><span class="section-number-3">7.3</span> operator</h3>
+<div class="outline-text-3" id="text-7-3">
+<p>
+待update。
+</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

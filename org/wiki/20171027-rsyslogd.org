@@ -1,0 +1,54 @@
+#+Title: syslog、syslog-ng、rsyslog
+
+* preface
+操作系统（专指*nix）需要日志服务软件记录操作系统的运行日志（比如用户登录信息/var/log/secure、mail信息/var/log/mail、kernel信息/var/log/kern.log等）；为了实现这一功能操作系统需要一款系统级别的日志服务软件。
+
+* syslog、syslog-ng、rsyslog
+这是为了解决preface中所说的同一个问题而出现的三款不同软件。
+这三款软件输入源氛围三种：
+1. kernel (like kern.log)
+2. application in userspace (like mail.log )
+3. network ( by udp port 514)
+
+* syslog[fn:1]
+最早出现的日志服务软件，与1980s被 Eric Allman虽Sendmail一起开发。
+随着该应用逐渐推广开来，syslog基本算是一个事实上的标准，但是没有一个统一的标准，并且存在不少不兼容的实现。后来IETF指定了几份关于syslog protocol的规范才算尘埃落定。
+syslog当把网络作为输入源时仅支持udp协议（默认514端口）
+随着操作系统的发展，syslog从功能、性能跟不上时代发展，于是有了后面两个独立的项目。
+当前macos、freebsd依然使用syslog；CentOS在版本6之前使用它，版本后6之后使用rsyslogd。
+
+* syslog-ng[fn:2]
+类似于syslog的一款开源软件, 1998年开始开发。
+其使用标准的BSD syslog protocol。其由一家公司开发，版权类似于Qt分为两种：一种是LGPL协议下的开源版本，一个是专利下的版本（含有一些附加功能）。
+在syslog基础上，其支持TCP、TLS加密等特性
+
+* rsyslog[fn:3]
+同上，rsyslog出现于2004年，其实现了标准的BSD syslog protocal，是一款运行雨Unix&Unix-like系统上的开源软件。相比syslog，其增加了内容过滤、TCP传输、灵活的配置、RELP协议支持等功能。
+当前CentOS、Debian系等大部分Linux发行版使用rsyslogd来提供日志服务；估计是三款中应用最广泛的。
+
+* rsyslog配置
+建议先阅读 rsyslog、 syslogd.conf的man手册。其次官方网站[fn:4]guides和document。
+搜到一篇博文[[http://blog.clanzx.net/2013/12/31/rsyslog.html][某位网友写的rsyslog配置简介（中文）]] 写的也很详细。
+
+
+
+下面粘贴个人用到的例子：#开头的行为注释行，首先定义一个log模板，后续两行根据匹配规则将文件打印至不同的路径。
+#+BGEIN_SRC text
+#define manager-server log format and log file
+$template LogFormat, "%rawmsg:5:$%\n"
+if ($msg contains ' manager-server ') then  /home/work/log/managerserver/managerser.log;LogFormat
+if ($msg contains ' manager-server ' and $syslogseverity <= 4) then /home/work/log/managerserver/managerser_err.log;LogFormat
+:msg, contains, " manager-server " ~
+#+END_SRC
+
+注：
+
+* Footnotes
+
+[fn:1] [[https://en.wikipedia.org/wiki/Syslog][Syslog wiki]]
+
+[fn:2] [[https://en.wikipedia.org/wiki/Syslog-ng][syslog-ng wiki]]
+
+[fn:3] [[https://en.wikipedia.org/wiki/Rsyslog][rsyslog wiki]]
+
+[fn:4] [[http://www.rsyslog.com/][rsyslog官网]]

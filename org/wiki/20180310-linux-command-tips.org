@@ -1,0 +1,21 @@
+#+Title: linux command tips
+
+
+|     date | modification    |
+|----------+-----------------|
+| 20180310 | add nl, xmllint |
+
+最近发现了一些挺有意思的小命令；虽然比较“旁门左道”，用到时还是挺不错的。
+* nl
+nl is short of "line number filter",专用用来给文件“按照指定规则标记行号”的小工具。
+比如空行跳过、行号宽度、只对“匹配正则表达式”的行进行标记。
+
+详细参考：
+- http://www.cnblogs.com/peida/archive/2012/11/01/2749048.html
+- man nl（macos 自带了这个命令。）
+
+* xmllint
+xmllint是一个针对 xml 进行格式解析、处理的工具。
+详细参考：
+- http://www.361way.com/xmllint-html-xml/3048.html
+- man xmllint(macos 自带了这个命令)

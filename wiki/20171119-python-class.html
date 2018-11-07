@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-03-19 Mon 18:20 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>python class综述</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="shuchaoma" />
+<link rel="stylesheet" type="text/css" href="https://www.shuchaoma.com/css/stylesheet.css">
+<link rel="shortcut icon" href="/css/favicon.ico">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">python class综述</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org2e05a2d">1. preface</a>
+<ul>
+<li><a href="#orga851b52">1.1. 类（class）:</a></li>
+<li><a href="#org8d88c3a">1.2. 类实例（instance）</a></li>
+<li><a href="#orge623b3e">1.3. 属性（attribute）</a></li>
+<li><a href="#orgb1ec87d">1.4. 其他</a></li>
+</ul>
+</li>
+<li><a href="#orge9cdbee">2. 继承&amp;多态</a></li>
+<li><a href="#org25886f4">3. super</a></li>
+<li><a href="#org9e1bc87">4. classmethod&amp;staticmethod</a>
+<ul>
+<li><a href="#orgf6ed416">4.1. classmethod</a></li>
+<li><a href="#org509ddfb">4.2. staticmethod</a></li>
+</ul>
+</li>
+<li><a href="#org6c5ec5a">5. 特殊方法/魔法方法（magic method/magic method）</a></li>
+<li><a href="#org36021b3">6. _<sub>slots</sub>__</a></li>
+<li><a href="#org79669fb">7. 元类(metaclass)</a></li>
+<li><a href="#org1de0647">8. 继承&amp;多态</a></li>
+<li><a href="#orgcaea874">9. classmethod&amp;staticmethod</a></li>
+<li><a href="#orgdefc58b">10. 元类</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2e05a2d" class="outline-2">
+<h2 id="org2e05a2d"><span class="section-number-2">1</span> preface</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+python的世界流行一句话“一切都是对象”，无论类、变量、参数、函数都是对象。
+这么多不同类型的对象，有着不同的作用。为了避免概念混淆，先理清楚一些概念。
+</p>
+</div>
+<div id="outline-container-orga851b52" class="outline-3">
+<h3 id="orga851b52"><span class="section-number-3">1.1</span> 类（class）:<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup></h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+A template for creating user-defined objects.
+Class definitions normally contain method definitions which operate on instances
+of the class.
+class是一个用来生成对象的模板；通常类的定义包含方法（method）的定义和一些属性的
+声明。
+</p>
+</div>
+</div>
+<div id="outline-container-org8d88c3a" class="outline-3">
+<h3 id="org8d88c3a"><span class="section-number-3">1.2</span> 类实例（instance）</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+类实例可以指的是类实例化后生成的对象。
+</p>
+</div>
+</div>
+<div id="outline-container-orge623b3e" class="outline-3">
+<h3 id="orge623b3e"><span class="section-number-3">1.3</span> 属性（attribute）</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+A value associated with an object which is referenced by name using dotted
+expressions.For example, if an object o has an attribute a it would be
+referenced as o.a.
+由此可见，类中的method和varibale都属于类对象的属性。
+</p>
+</div>
+</div>
+<div id="outline-container-orgb1ec87d" class="outline-3">
+<h3 id="orgb1ec87d"><span class="section-number-3">1.4</span> 其他</h3>
+<div class="outline-text-3" id="text-1-4">
+<ol class="org-ol">
+<li>python类支持支持两种操作: attribute references(属性应用) and
+instantiation（实例化）.</li>
+<li>属性引用就是类似于"object.name"这类形式</li>
+<li>类的实例化就是将类作为函数一样使用，然后生成一个类对象。</li>
+
+<li>类属性访问限制</li>
+</ol>
+<p>
+C++中通过public、private关键字限制变量、函数的对外接的访问能力。
+Python曰：
+</p>
+<ul class="org-ul">
+<li>如果变量以_<sub>(两个下划线)</sub>开头，自动设置该变量为私有变量。</li>
+<li>如果变量以<sub>(一个下划线)</sub>开头，这类变量无访问限制；但是不建议直接访问该属性。</li>
+<li>如果变量以_<sub>开头</sub>、且_<sub>结尾</sub>，这类变量属于python的特殊变量，不建议用户自定义的变
+量使用这类命令。这类变量无访问限制。</li>
+<li>tips</li>
+<li>使用type(object)可以查看object的类型。</li>
+<li>使用isinstance(object, type)用于验证object是否是type类型。</li>
+<li>dir(obj) 可以获取相应对象的所有属性和方法名的列表</li>
+<li>使用 hasattr(obj, attr) 判断对象是否具有指定属性/方法</li>
+<li>使用 getattr(obj, attr[, default]) 获取属性/方法的值, 要是没有对应的属性则返回
+default 值（前提是设置了 default），否则会抛出 AttributeError 异常；</li>
+<li>使用 setattr(obj, attr, value) 设定该属性/方法的值，类似于 obj.attr=value.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge9cdbee" class="outline-2">
+<h2 id="orge9cdbee"><span class="section-number-2">2</span> 继承&amp;多态</h2>
+<div class="outline-text-2" id="text-2">
+<ol class="org-ol">
+<li>子类可以通过继承获取父类的所有属性（含变量、方法）</li>
+<li>之类可以新增自己的方法，也可以重写父类的方法。（后者会产生多态的效果）</li>
+<li>有了继承，才有了多态，不同类的对象对同一函数调用会作出不同的响应。</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org25886f4" class="outline-2">
+<h2 id="org25886f4"><span class="section-number-2">3</span> super<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup></h2>
+<div class="outline-text-2" id="text-3">
+<p>
+通过“继承”子类可以轻松获取父类的方法，通过“重写”之类可以定制适合自己的方法。
+但是在“重写”某个方法时，之类期望可以调用父类该方法，完成部分初始化功能。这时就是
+super出场的时候了。
+使用方法见参考链接，此处不再赘述。
+</p>
+</div>
+</div>
+<div id="outline-container-org9e1bc87" class="outline-2">
+<h2 id="org9e1bc87"><span class="section-number-2">4</span> classmethod&amp;staticmethod</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+类的方法中存在两种特别的例子：类方法（classmethod）和静态方法（staticmethod）。
+这两个方法的定义同时通过在普通的函数上一行增加修饰器@classmethod或者
+@staticmethod定义。
+</p>
+</div>
+<div id="outline-container-orgf6ed416" class="outline-3">
+<h3 id="orgf6ed416"><span class="section-number-3">4.1</span> classmethod</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+classmethod指的是这个方法属于类，而不属于类实例化的对象。
+其操作的内容往往是“类变量”。
+定义该方法时有两点需要注意：一是需要@classmethod修饰器，而是methodd第一个参数必
+须是cls。
+</p>
+</div>
+</div>
+<div id="outline-container-org509ddfb" class="outline-3">
+<h3 id="org509ddfb"><span class="section-number-3">4.2</span> staticmethod</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+类中存在一些方法与类有关，但是不会改变类和实例中的任何状态；这种方法称之为
+staticmethod。
+这类方法的定义也有两点注意事项：一是需要@staticmethod修饰，二是method参数既没有
+cls，也没有self。
+具体例子参考：<a href="https://github.com/ethan-funny/explore-python/blob/master/Class/method.md">类方法&amp;静态方法</a>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6c5ec5a" class="outline-2">
+<h2 id="org6c5ec5a"><span class="section-number-2">5</span> 特殊方法/魔法方法（magic method/magic method）</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+在python中经常看到类似于_<sub>init</sub>_<sub>的方法,函数名前后都有两个下划线</sub>；在python中定义
+了大量的这类方法，用户在定义自己的类时尤其有用；Python解析器对每一个这样的方法做
+出不同的解释。我们称这类方法为“special/magic method”。
+下面我们列举一些这类方法（完整列表参考<a href="https://docs.python.org/3.6/reference/datamodel.html#special-method-names">python-special-method</a>）:
+</p>
+<ol class="org-ol">
+<li>_<sub>new</sub>__</li>
+</ol>
+<p>
+在类实例化时，Python解析器首先调用_<sub>new</sub>_<sub>来创建实例</sub>，然后调用_<sub>init</sub>_<sub>对实例进行</sub>
+初始化。关于_<sub>new</sub>_<sub>需要注意</sub>：
+</p>
+<ul class="org-ul">
+<li>_<sub>new</sub>__ 是在 <span class="underline"><span class="underline">init</span></span> 之前被调用的；</li>
+<li>_<sub>new</sub>__ 是类方法，_<sub>init</sub>__ 是实例方法；</li>
+<li>重载 <span class="underline"><span class="underline">new</span></span> 方法，需要返回类的实例；</li>
+</ul>
+<p>
+一般情况下，我们不需要重载_<sub>new</sub>_<sub>方法</sub>，只有在需要控制实例的创建过程时，才需要通
+过重载_<sub>new</sub>__。
+</p>
+<ol class="org-ol">
+<li>_<sub>enter</sub>__ 和 <span class="underline"><span class="underline">exit</span></span></li>
+</ol>
+<p>
+如<a href="./20171027-Python-Glossary.html">生成器</a>所说，这两个special method结合可以定义出可被with语句使用的上下文管理器。
+</p>
+
+<ol class="org-ol">
+<li>_<sub>iter</sub>__ 和 _<sub>next</sub>__（python2.7是next方法）</li>
+</ol>
+<p>
+同上，这两个函数相互结合，可以定义出迭代器。
+而在类中定义_<sub>iter</sub>__，可以让对类生成的对象为可迭代对象。
+</p>
+
+<ol class="org-ol">
+<li>_<sub>str</sub>__ 和 <span class="underline"><span class="underline">repr</span></span></li>
+</ol>
+<p>
+对类对象调用str或者print函数时，会输出_<sub>str</sub>_<sub>内容</sub>。
+而_<sub>repr</sub>_<sub>这是在调用repr函数输出的内容</sub>，是对象在python解析器中的official string
+reprenstation.(详情参考<a href="https://github.com/ethan-funny/explore-python/blob/master/Class/magic_method.md">magic method</a>)
+</p>
+
+<ol class="org-ol">
+<li>_<sub>getitem</sub>__</li>
+</ol>
+<p>
+有时，我们希望可以使用 obj[n] 这种方式对实例对象进行取值。需要重载该方法。
+同上，类似的还有：
+_<sub>setitem</sub>__：例如用于"p['x'] = 2"设置值
+_<sub>delitem</sub>__: 例如用于"del p['x']"删除值。
+</p>
+
+<ol class="org-ol">
+<li>_<sub>call</sub>__</li>
+</ol>
+<p>
+一般我们调用对象的方法的格式object.method()。但我们定义了一个method时，python解
+析器自动给它增加了_<sub>call</sub>_<sub>方法</sub>；如果我们让某个类实例具备“可调用属性”，直接在类定
+义中增加_<sub>call</sub>_<sub>方法即可</sub>。
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #b9ca4a;">class</span> <span style="color: #7aa6da;">Point</span><span style="color: #eaeaea;">(</span><span style="color: #c397d8;">object</span><span style="color: #eaeaea;">)</span>:
+    <span style="color: #b9ca4a;">def</span> <span style="color: #e78c45;">__init__</span><span style="color: #eaeaea;">(</span><span style="color: #b9ca4a;">self</span>, x, y<span style="color: #eaeaea;">)</span>:
+        <span style="color: #b9ca4a;">self</span>.x, <span style="color: #b9ca4a;">self</span>.y = x, y
+    <span style="color: #b9ca4a;">def</span> <span style="color: #e78c45;">__call__</span><span style="color: #eaeaea;">(</span><span style="color: #b9ca4a;">self</span>, z<span style="color: #eaeaea;">)</span>:
+        <span style="color: #b9ca4a;">return</span> <span style="color: #b9ca4a;">self</span>.x + <span style="color: #b9ca4a;">self</span>.y + z
+
+<span style="color: #969896; font-style: italic;">#</span><span style="color: #969896; font-style: italic;">&#32467;&#26524;&#22914;&#19979;</span>
+&gt;&gt;&gt; <span style="color: #e7c547;">p</span> = Point<span style="color: #eaeaea;">(</span>3, 4<span style="color: #eaeaea;">)</span>
+&gt;&gt;&gt; <span style="color: #c397d8;">callable</span><span style="color: #eaeaea;">(</span>p<span style="color: #eaeaea;">)</span>     <span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">&#20351;&#29992; callable &#21028;&#26029;&#23545;&#35937;&#26159;&#21542;&#33021;&#34987;&#35843;&#29992;</span>
+<span style="color: #7aa6da;">True</span>
+&gt;&gt;&gt; p<span style="color: #eaeaea;">(</span>6<span style="color: #eaeaea;">)</span>            <span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">&#20256;&#20837;&#21442;&#25968;&#65292;&#23545;&#23454;&#20363;&#36827;&#34892;&#35843;&#29992;&#65292;&#23545;&#24212; p.__call__(6)</span>
+13                  <span style="color: #969896; font-style: italic;"># </span><span style="color: #969896; font-style: italic;">3+4+6</span>
+</pre>
+</div>
+<ol class="org-ol">
+<li>_<sub>len</sub>__</li>
+</ol>
+<p>
+当对object调用len(object)函数时，该函数会被调用；返回值为该object的长度。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org36021b3" class="outline-2">
+<h2 id="org36021b3"><span class="section-number-2">6</span> _<sub>slots</sub>__</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+默认情况下, 类的实例有一个词典变量（_<sub>dict</sub>__）存放该实例的所有属性。 即使类中没有
+定义的属性，在动态调用阶段也可以绑定。这个特性对于拥有少量变量的类实例，过于浪费
+内存空间。
+通过在类中定义_<sub>slots</sub>_<sub>变量</sub>，可以避免_<sub>dict</sub>_<sub>的生成</sub>；并且_<sub>slots</sub>_<sub>存放所有可访问</sub>
+的变量列表。这样类实例时只为列表内的元素申请空间。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org79669fb" class="outline-2">
+<h2 id="org79669fb"><span class="section-number-2">7</span> 元类(metaclass)</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+类(class)实例化后生成的对象是“instance”
+元类(metaclass)实例化后生成的对象是“class（类）”。
+按照Python-Glossary的定义：
+The class of a class. Class definitions create a class name, a class dictionary,
+and a list of base classes. The metaclass is responsible for taking those three
+arguments and creating the class. Most object oriented programming languages
+provide a default implementation. What makes Python special is that it is
+possible to create custom metaclasses. Most users never need this tool, but when
+the need arises, metaclasses can provide powerful, elegant solutions. They have
+been used for logging attribute access, adding thread-safety, tracking object
+creation, implementing singletons, and many other tasks.
+metaclass就是用来生成类的类。我们平时都是定义类、然后用起生成类的实例；而这里叫
+我们定义元类，然后用来生成元类的实例（即类）。
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org1de0647" class="outline-2">
+<h2 id="org1de0647"><span class="section-number-2">8</span> 继承&amp;多态</h2>
+</div>
+
+<div id="outline-container-orgcaea874" class="outline-2">
+<h2 id="orgcaea874"><span class="section-number-2">9</span> classmethod&amp;staticmethod</h2>
+</div>
+
+<div id="outline-container-orgdefc58b" class="outline-2">
+<h2 id="orgdefc58b"><span class="section-number-2">10</span> 元类</h2>
+<div class="outline-text-2" id="text-10">
+<p>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; 078818fc9cb99748da04bde031aa30ad3d784a79
+</p>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://docs.python.org/3/glossary.html">python-Glossary(class defination)</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+<a href="https://github.com/ethan-funny/explore-python/blob/master/Class/super.md">你说不知道的super</a>
+<code>=====</code>
+</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

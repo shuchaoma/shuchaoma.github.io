@@ -1,0 +1,20 @@
+#+title:  Kownledge wiki
+#+STARTUP: showall
+
+* /Networking/
+- [[file:wiki/20170918-ping.org][ping]] 作为世界上最常见的网络诊断工具，进行较系统的记录。
+- [[./wiki/20170919-traceroute.org][traceroute]] ping是第一常见的网络诊断工具的话，那traceroute就是第二。这款工具从上个世纪80年代末出现，现在依然具有顽强的生命力。这是一款路由探测工具。
+- [[./wiki/20170926-traceroute-variant.org][traceroute变体]] traceroute简单易用，多于简单的网络诊断是可以说“随身携带”，但是还有尚未随身携带的一些类似工具，其提供了更加强大的能力，比如LFT（layer four traceroute）、paris traceroute。
+
+
+* /System/
+- [[./wiki/20171027-rsyslogd.org][syslog rsyslog syslog-ng]]
+- [[./wiki/20180310-linux-command-tips.org][linux command tips]]
+
+* Language
+- [[./wiki/20171027-Python-Glossary.org][Python术语表（持续更新）]]
+- [[./wiki/20171101-python-functional-programming.org][python函数式编程简述]]
+- [[./wiki/20171104-python-errno-module.org][python errno模块]]
+- [[./wiki/20171107-python-standard-library.org][python标准库索引]]
+- [[./wiki/20171112-getopt-of-python-c-bash.org][命令行参数处理（c/bash/python）]]
+- [[./wiki/20171119-python-class.org][python class综述]]

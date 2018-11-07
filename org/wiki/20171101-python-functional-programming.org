@@ -1,0 +1,150 @@
+#+Title: Python函数式编程
+
+* 什么是函数式编程
+首先，这只是一种编程范式；即使不知道这个东东也不影响你写出好的程序。不过如果对此有一定的掌握，可以写出更加精简的语言。
+函数式编程相对过程式编程跟高阶一些，一般对此支持的语言执行效率方便相对低效一些。(不过C/C++通过函数指针可以模拟函数式编程)
+与面向过程编程对比：
+#+BEGIN_SRC python
+面向过程思维关心解决问题的步骤；函数式编程思维关心输入与输出之间的映射关系。
+#+END_SRC
+注：想一想高中时候数学对函数的定义 ^_^ y=f(x)代表的是x与y的映射关系；而这个映射关系是通过表达式表示的。
+
+具体函数编程思维参考下面两篇文章：
+- [[https://www.zhihu.com/question/28292740][什么是函数式编程(知乎头两个回答挺不错)]]
+- [[https://en.wikipedia.org/wiki/Functional_programming][Functional programming(wiki)]]
+
+* python与函数式编程
+python并非天生是函数式编程语言；不过最为高阶语言对函数式编程提供了越来越多的支持。
+- 比如一切皆是对象的概念，函数名作为参数传递。
+- 比如匿名函数、装饰器的概念
+- 比如内置函数map、reduce、filter
+- 比如python基础库中的几个module：itertools、functools、operator
+
+
+* 高阶函数(High-order function)
+首先我们应用wikipedia的概念：
+#+BEGIN_SRC text
+In mathematics and computer science, a higher-order function (also functional, functional form or functor) is a function that does at least one of the following:
+- takes one or more functions as arguments.
+- returns a function as its result.
+#+END_SRC
+回忆一下大学的高等数学,大家应该能有一点印象吧。
+python作为一种高度抽象的语言，举例：
+#+BEGIN_SRC python
+def print_ele(ele):
+    print("ele=%s\n" % ele)
+
+def print_lst(lst, func_handler):
+    for ele in lst:
+        func_handler(ele)
+
+lst=["a", "b", "c"]
+print_lst(lst, print_ele)
+#+END_SRC
+
+* 匿名函数(anonymous function)
+python的匿名函数其实就是lambda表达式，通过lambda表达式可以定义一个没有名字的函数，该表达式的返回值是fuction类型。定义形式如下：
+#+BEGIN_SRC text
+lambda arguments: express
+#+END_SRC
+举例如下：
+#+BEGIN_SRC text
+>>> x = lambda x: x*x
+>>> type(x)
+<type 'function'>
+>>> x(9)
+81
+#+END_SRC
+注：
+- lambda表达式或者其返回值可以用在任何函数所在的地方。（lambda表达式本身就是函数。）
+- lambda表达式一般用于创建一些小巧的函数；尤其再高阶函数中应用较多。这个特性极大的增强了python的表达能力。
+
+* 装饰器(decorator)
+这个概念自从接触python就一直很让令我纠结：真的是太她妈难懂呀！而且也没有发现有什么大的作用。
+现在看来，修饰器本质上就是一个高阶函数的“语法糖”用法，在不少场景下也能极大的增强python的表达能力。
+具体不在赘述，参考如下链接：
+- [[https://github.com/ethan-funny/explore-python/blob/master/Functional/decorator.md][装饰器]]
+- [[https://docs.python.org/3/reference/compound_stmts.html#function-definitions][python-function-definations]]
+
+需要理解几点是：
+- 装饰器（函数或者类）需要是callable的；对类而言，这要求其声明__call__ method。
+- 一个装饰器往往可以装饰很多函数，节省代码的同时增强表达力。同样修改装饰器本身，也会影响被装饰的函数的表现。
+
+* map、reduce、filter
+map、reduce、filter是python内置的高阶函数，其都需要函数作为他们的第一参数。
+
+** map
+函数使用形式如下：map(function, sequence) --->sequence
+含义：将function作用域sequence的每一个item，并且将返回值作为一个sequence返回。
+** reduce
+函数使用形式如下：reduce(fuction, sequence [,initial]) --->value
+含义： 先将sequence的前两个item传给function，函数的返回值和sequence的下一个item再传给function，如此迭代，直到sequence
+没有元素。如果有initial，则作为初始值调用。其最终返回一个value。
+
+** filter
+函数使用形式如下：filter(fucntion, sequence) -->sequence.
+含义：将function依次作用域sequence的每一个item，将返回值为Ture的item作为一个sequnce返回。
+
+注：
+- 在python2中 map、filter的返回值由第二个参数sequnce的类型而决定。
+- 在python3中，map、filter的返回值都是迭代器类型
+
+** Example python2.7
+#+BEGIN_SRC python
+>>> lst=[1, 2, 3, 4, 5, 6, 7]
+>>> map(lambda x:x*2, lst)
+[2, 4, 6, 8, 10, 12, 14]
+>>> reduce(lambda x, y: x + y, lst)
+28
+>>> filter(lambda x: x>4, lst)
+[5, 6, 7]
+>>>
+#+END_SRC
+
+* 自带的几个module对functional programming提供支持
+python内置了一些模块专门支持函数式编程范式；目前设计的模块有itertools、functools、operator。
+比较常用的是前两个，尤其掌握可第一个会再部分场景下极大的提升编码效率（更少的字符、更强大的功能）
+** itertools
+这个module主要受其他支持函数式编程的语言（如Haskell）激发而产生的;其定义了很多函数/类用来产生各种各样的迭代器。
+当然，它的效率是卓著的.
+其产生的迭代器可以分为三类：无限迭代器、有限迭代器、组合迭代器。
+*** 无限迭代器
+1. count(start [,step]) : 产生无限个数字， start, start+step, start+2*step...
+2. cycle(iterable) : 循环输出iterable里面的元素。
+3. repeat(elem [,n]) ： 一直输出elem（如果有参数n的话，输出n次）
+*** 有限迭代器
+1. chain(p, q, ...) --> p0, p1, ... plast, q0, q1, ...
+- chain('ABC', 'DEF') --> A B C D E F
+2. compress(data, selectors) --> (d[0] if s[0]), (d[1] if s[1]), ...
+- compress('ABCDEF', [1,0,1,0,1,1]) --> A C E F
+3. dropwhile(pred_func, seq) --> seq[n], seq[n+1], starting when pred_func fails
+- dropwhile(lambda x: x<5, [1,4,6,4,1]) --> 6 4 1
+4. groupby(iterable[, keyfunc]) --> create an iterator which returns (key, sub-iterator) grouped by each value of key(value).
+5. ifilter(pred, seq) --> elements of seq where pred(elem) is True
+6. ifilterfalse(pred, seq) --> elements of seq where pred(elem) is False
+7. islice(seq, [start,] stop [, step]) --> elements from seq[start:stop:step]
+8. starmap(fun, seq) --> fun(*seq[0]), fun(*seq[1]), ...
+9. tee(it, n=2) --> (it1, it2 , ... itn) splits one iterator into n
+10. takewhile(pred, seq) --> seq[0], seq[1], until pred fails
+11. izip(p, q, ...) --> (p[0], q[0]), (p[1], q[1]), ...
+- izip 用于将多个可迭代对象对应位置的元素作为一个元组，将所有元组『组成』一个迭代器，并返回。
+izip_longest(p, q, ...) --> (p[0], q[0]), (p[1], q[1]), ...
+- 跟izip相同，区别点在于当某个iterable元素不足时，会用None代替。
+*** 组合迭代器
+1. product(p, q, ... [repeat=1]) --> cartesian product (叉乘)
+2. permutations(p[, r]) : Return successive r-length permutations of elements in the iterable. (排列)
+-  permutations(range(3), 2) --> (0,1), (0,2), (1,0), (1,2), (2,0), (2,1)
+3. combinations(p, r): Return successive r-length combinations of elements in the iterable (组合)
+4. combinations_with_replacement :
+- Return successive r-length combinations of elements in the iterable, allowing individual elements to have successive repeats.
+与combinations区别在于允许自身作为一个组合。
+
+*** 具体用法参考如下：
+- 官方文档  [[https://docs.python.org/3/library/itertools.html][python-libraray-itertools]]
+- [[http://funhacks.net/2017/02/13/itertools/][高效的itertools模块（中文）]]
+
+** functools
+待update。
+
+** operator
+待update。

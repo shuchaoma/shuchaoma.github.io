@@ -1,0 +1,54 @@
+#+TITLE: traceroute的几个变体
+#+DATE: 20170926
+
+* Revision History
+|      date | modification |
+|-----------+--------------|
+| 20170926 | first draft  |
+
+* Preface
+在[[./20170919-traceroute.org][20170919-traceroute]]中我们探讨了traceroute（mainly for *nix）的一些基本原理；除了操作系统提供的基本trace工具，还有不少trace工具的变体，比如LFT（layer four traceroute）、Paris Traceroute等。今日我们讨论一下不同trace方案的比较。
+
+详细的探测流程在之前文章已经介绍，下面主要介绍一些不同点。
+
+* traceroute
+首先我们关注一些traceroute不同探测包的不同。
+各类*nix的traceroute工具默认使用UDP作为作为探测报文，其实traceroute（部分版本过低，可能不支持）支持ICMP、TCP、UDP等多种协议作为探测包。
+
+** 以UDP作为探测包
+当以UDP作为探测包时，如果没有达到end system，返回的time exceed icmp包；到达end system后，会返回是unreachable port icmp报文，traceroute感知后结束进程。
+
+** 以TCP作为探测包
+当以TCP作为探测包(SYN or FIN)时，如果没有到达end system，返回的是time exceed icmp包；到达end system后，会返回ACK/RST报文, 从而traceroute感知后结束进程。
+
+** 以ICMP作为探测包
+当以ICMP作为探测包时，如果没有到达end system，返回的是time exceed icmp包；到达end system后，会返回reply报文，从而traceroute感知后结束进程。
+
+
+* LFT（layer four traceroute）[fn:1]
+LFT是一个四层的trace工具，相比传统的traceroute，其运行速度快很多(据sb统计要快20倍)且可以穿越很多firewall。更重要的是LFT提供很多其他feature：
+- AS number查询
+- loose source routing
+- netblock name lookup
+可以将LFT理解为ALL-IN-ONE的一款trace工具，它支持ICMP、UDP和TCP协议的探测方式，或者RFC1393探测方式。
+
+未来计划写一篇针对LFT的源码剖析，敬请期待。
+
+* Paris Traceroute[fn:2]
+PPT: http://media.frnog.org/FRnOG_10/FRnOG_10-3.pdf
+Paris Traceroute是另外一款trace家族的软件工具;其专注于探索路由图谱。现实生活中的大量的路由设备是通过liad balance方式运作的；所以传统的trace工具往往只能探索到不完整的甚至错误的路径。而这款工具通过控制packet header，
+从而尽可能获取更完整、准确的路由拓扑图。
+
+
+
+* 其他工具汇总
+** [[http://www.pathanalyzer.com/][Path Analyzer Pro]]
+这是一款基于LFT代码开发的GUI版本，GUI版本需要付费。
+** [[https://en.wikipedia.org/wiki/PathPing][PathPing]]
+这是一款WinNT系统提供的trace工具, 它结合了traceroute和ping的特性，对探测到的每个一个node都会通过ping进行统计验证,它输出的路由信息是经过一段时间汇总出来的结果，而不是单独的一次traceroute信息。当然缺点是运行时间会相对来说长很多。
+
+* Footnotes
+
+[fn:1] [[http://pwhois.org/lft/][LFT官方主页]]
+
+[fn:2] [[https://paris-traceroute.net/][paris-traceroute主页]]
