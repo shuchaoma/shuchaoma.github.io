@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+
+
+
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>马树超的碎碎念</title>
+        <link>https://shuchaoma.github.io/</link>
+        <description>马树超的碎碎念，互联网上的一份自留地</description>
+        <generator>Hugo 0.125.4 https://gohugo.io/</generator>
+        
+            <language>zh-CN</language>
+        
+        
+            <managingEditor>shuchao.max#gmail.com(#=&gt;@) (shuchaoma)</managingEditor>
+        
+        
+            <webMaster>shuchao.max#gmail.com(#=&gt;@) (shuchaoma)</webMaster>
+        
+        
+            <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh)</copyright>
+        
+        <lastBuildDate>Thu, 02 May 2024 20:31:25 &#43;0800</lastBuildDate>
+        
+            <atom:link rel="self" type="application/rss&#43;xml" href="https://shuchaoma.github.io/rss.xml" />
+        
+        
+    </channel>
+</rss>
